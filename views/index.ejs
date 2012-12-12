@@ -3,7 +3,7 @@
   <head>
     <% include head.common.ejs %>
     <style>
-        .sm-icon { display: inline-block; background-size: 100%; width: 200px; height: 200px; text-indent: -999em; text-align: left; }
+        .sm-icon { display: inline-block; background-size: 100%; width: 100px; height: 100px; text-indent: -999em; text-align: left; }
         .sm-icon.login { background: url("images/noun_project_7717.svg"); }
         .sm-icon.forms { background: url("images/noun_project_6119.svg"); }
         .sm-icon.payment { background: url("images/noun_project_1418.svg"); }
@@ -11,43 +11,39 @@
         .sm-icon.survey { background: url("images/noun_project_1908.svg"); }
         .sm-icon.upload { background: url("images/noun_project_6172.svg"); }
         .sm-center { text-align: center; }
-        .sm-category { margin-top: 20px; }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="hero-unit">
-        <h1>surla.mobi</h1>
-        <p>Bridging web, brick, and mobile</p>
-      </div> <!-- /hero-unit -->
+      <%include header.common.ejs %>
       <div class="row">
         <div class="span3 sm-center">
             <a href="/login" class="sm-icon login">
                 &nbsp;
             </a>
-            <p class="lead sm-category">Login re-imagined</p>
+            <p class="lead sm-category">Login</p>
         </div>
         <div class="span3 sm-center">
             <span class="sm-icon forms"/>&nbsp;</span>
-            <p class="lead sm-category muted">Web forms re-imagined<br>(coming soon)</p>
+            <p class="lead muted">Web forms<br>(coming soon)</p>
         </div>
         <div class="span3 sm-center">
             <span class="sm-icon payment"/>&nbsp;</span>
-            <p class="lead sm-category muted">Payments re-imagined<br>(coming soon)</p>
+            <p class="lead muted">Payments<br>(coming soon)</p>
         </div>  
         <div class="span3 sm-center">
             <span class="sm-icon remote"/>&nbsp;</span>
-            <p class="lead sm-category muted">Remote control re-imagined<br>(coming soon)</p>
+            <p class="lead muted">Remote control<br>(coming soon)</p>
         </div>      
       </div>
       <div class="row">
         <div class="span3 sm-center">
             <span class="sm-icon survey"/>&nbsp;</span>
-            <p class="lead sm-category muted">Surveys re-imagined<br>(coming soon)</p>
+            <p class="lead muted">Surveys<br>(coming soon)</p>
         </div>      
         <div class="span3 sm-center">
             <span class="sm-icon upload"/>&nbsp;</span>
-            <p class="lead sm-category muted">Upload re-imagined<br>(coming soon)</p>
+            <p class="lead muted">Upload<br>(coming soon)</p>
         </div>  
       </div>   
 
@@ -59,7 +55,7 @@
                 &copy; surla.mobi 2012
             </div>
             <div class="span3 offset7" class="muted" style="text-align: right">
-                <a href="/noun_attrib">The Noun Project Attributions</a>
+                <a href="/noun">The Noun Project Attributions</a>
             </div>
         </div>
       </footer>       
