@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include head.common.ejs %>
+  </head>
+
+  <body>
+
+    <% include navbar.ejs %>
+
+    <div class="container">
+
+      <div class="well well-large">
+        <h1>About</h1>
+      </div>
+
+      <div class="row">
+        <div class="span2">
+          <img src="/pictures/tjanczuk.jpg" width="187" height="220" alt="Tomasz Janczuk"/>
+        </div>
+        <div class="span10">
+          <p>If you are a software developer <a href="http://tomasz.janczuk.org">like me</a>, you know it takes a lot of time and effort to stay current with 
+            new technologies and tools. With init_dev_box() I am trying to take away the boring and time consuming part of setting up and cleaning up your developement environment to help you focus your time on coding, learning, and trying out new software.</p>
+          <p>The init_dev_box() service allows you to create a ready to go virtual machine with pre-installed free or trial versions of development tools. The process takes only a few minutes. You can then access the machine from Windows, Mac, or Linux using Remote Desktop. When you are done, the machine is deleted without leaving any residual effects on your primary development machine.</p>
+          <p>Currently you can try Visual Studio 2012 on Windows Server 2012, but I am planning to create more platform templates to choose from. If you have suggestions, I would love to <a href="/contact">hear from you</a>.
+          <p>Being a developer I can't help myself but talk about technology. The virtual machines you are using are set up in <a href="https://www.windowsazure.com">Windows Azure</a>. The web site you are reading is a <a href="https://www.windowsazure.com/en-us/home/scenarios/web-sites/">Windows Azure Web Site</a>. The backend storage is set up in <a href="https://www.mongohq.com">MongoHQ</a>. There is also an agent component that watches over your virtual machines while you are at sleep, which runs in <a href="http://www.rackspace.com/">Rackspace</a> (just because I had an underutilized server there already). All components are written in <a href="http://nodejs.org">node.js</a>. One of those days I will descrive the design in more detail on my blog at <a href="http://tomasz.janczuk.org">http://tomasz.janczuk.org</a></p>
+          <p>I hope you will enjoy the service.</p>
+          <p>Sincerely,<br>Tomasz Janczuk</p>
+          <br>
+          <br>
+          <a class="btn btn-large btn-primary" href="/">Get your box now &raquo;</a>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
