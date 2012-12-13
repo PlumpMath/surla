@@ -9,5 +9,6 @@
     "facebookAppId": "na",
     "facebookAppSecret": "na",
     "loggingLevelConsole": "verbose",
-    "relayPollTimeout": 30000
+    "relayPollTimeout": 30000,
+    "inactiveRelayEntryTTL": 300000
 }

@@ -3,7 +3,34 @@ var uuid = require('node-uuid')
 
 var entries = {};
 
-exports.create = function (params, callback) {
+function isQueueClosed(entry) {
+    return (entry.queue.length > 0 && entry.queue[entry.queue.length - 1] === null) ? true : false;
+}
+
+function setInactivityTimeout(entry) {
+    if (entry.timeout) {
+        clearTimeout(entry.timeout);
+    }
+
+    entry.timeout = setTimeout(function () {
+        config.logger.verbose('Removing inactive relay entry', 
+            { id: entry.id, queueLength: entry.queue.length, queueClosed: isQueueClosed(entry) });
+
+        // entry expired - terminate any active polls
+
+        if (entry.pendingRequests) {
+            for (var i in entry.pendingRequests) {
+                var pendingRequest = entry.pendingRequests[i];
+                clearTimeout(pendingRequest.timeout);
+                pendingRequest.callback({ code: 410 })
+            }
+        }
+
+        delete entries[entry.id];
+    }, entry.params.ttl);    
+}
+
+exports.create = function (params, ttl, callback) {
     if (typeof params !== 'object') {
         return callback({ code: 400, message: 'Request parameters must be specified as a JSON object' });
     }
@@ -20,6 +47,8 @@ exports.create = function (params, callback) {
         defaultParams[i] = params[i];
     }
 
+    defaultParams.ttl = ttl;
+
     var id = uuid.v4().replace(/-/g, '');
     var entry = {
         id: id,
@@ -29,8 +58,9 @@ exports.create = function (params, callback) {
 
     config.logger.verbose('Creating new relay entry', entry);
 
-    entries[id] = entry;
+    setInactivityTimeout(entry);
 
+    entries[id] = entry;
     callback(null, entry);
 };
 
@@ -47,7 +77,7 @@ exports.poll = function (id, from, timeout, callback) {
 
         callback(null, entry.queue.slice(from))
     }
-    else if (entry.queue.length > 0 && entry.queue[entry.queue.length - 1] === null) {
+    else if (isQueueClosed(entry)) {
         // request out of range: response queue is already closed 
         // while `from` points to an index beyond the last element in the queue
 
@@ -83,7 +113,7 @@ exports.post = function (id, body, callback) {
 
         callback({ code: 404 });
     }
-    else if (entry.queue.length > 0 && entry.queue[entry.queue.length - 1] === null) {
+    else if (isQueueClosed(entry)) {
         // cannot add element because the queue is already closed
 
         callback({ code: 400 });
@@ -93,13 +123,16 @@ exports.post = function (id, body, callback) {
         var from = entry.queue.length;
         entry.queue.push(body);
 
+        // reset inactivity timeout
+        setInactivityTimeout(entry);
+
         if (entry.queue.length == entry.params.maxQueueLength && body !== null) {
             // add sentinel value to the queue indicating the queue is closed
             entry.queue.push(null);
         }
 
         config.logger.verbose('Posted relay message', 
-            { id: id, queueLength: entry.queue.length, queueClosed: (entry.queue[entry.queue.length - 1] === null) });
+            { id: id, queueLength: entry.queue.length, queueClosed: isQueueClosed(entry) });
 
         if (entry.pendingRequests) {
             // release pending requests

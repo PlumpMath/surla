@@ -2,7 +2,7 @@ var db = require('../src/db.js')
     , config = require('../src/config.js');
 
 exports.create = function(req, res) {
-    db.create(req.body, function (error, entry) {
+    db.create(req.body, config.inactiveRelayEntryTTL, function (error, entry) {
         res.set('Cache-Control', 'no-cache');
         res.set('Access-Control-Allow-Origin', '*');
 
