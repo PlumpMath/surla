@@ -7,5 +7,7 @@
     "googleClientId": "na",
     "googleClientSecret": "na",
     "facebookAppId": "na",
-    "facebookAppSecret": "na"
+    "facebookAppSecret": "na",
+    "loggingLevelConsole": "verbose",
+    "relayPollTimeout": 30000
 }
