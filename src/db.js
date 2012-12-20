@@ -36,7 +36,8 @@ exports.create = function (params, ttl, callback) {
     }
 
     var defaultParams = {
-        maxQueueLength: 1
+        maxQueueLength: 1,
+        useDataUri: false
     };
 
     for (var i in params) {
@@ -53,7 +54,8 @@ exports.create = function (params, ttl, callback) {
     var entry = {
         id: id,
         params: defaultParams,
-        queue: []
+        queue: [],
+        attachments: {}
     };
 
     config.logger.verbose('Creating new relay entry', entry);
@@ -70,7 +72,7 @@ exports.poll = function (id, from, timeout, callback) {
     if (!entry) {
         // id not found
 
-        callback({ code: 404 });
+        callback({ code: 404, message: 'Entry does not exist' });
     }
     else if (entry.queue.length > from) {
         // data ready to return
@@ -81,12 +83,12 @@ exports.poll = function (id, from, timeout, callback) {
         // request out of range: response queue is already closed 
         // while `from` points to an index beyond the last element in the queue
 
-        callback({ code: 416 });
+        callback({ code: 416, message: 'Response queue is already closed' });
     }
     else if (entry.queue.length != from) {
         // unsupported request for element other the next element to be enqued
 
-        callback({ code: 400 });
+        callback({ code: 400, message: 'Cannot poll the queue beyond the next element to be added' });
     }
     else {
         // park the request and wait for the next element to be enqueued or for poll timeout
@@ -105,7 +107,27 @@ exports.poll = function (id, from, timeout, callback) {
     }
 };
 
-exports.post = function (id, body, callback) {
+exports.getAttachment = function (id, position, callback) {
+    var entry = entries[id];
+
+    if (!entry) {
+        // id not found
+
+        callback({ code: 404, message: 'Queue not found' });
+    }
+    else if (!entry.attachments[position]) {
+        // attachment not found
+
+        callback({ code: 404, message: 'Attachment not found' });
+    }
+    else {
+        // return the attachment
+
+        callback(null, entry.attachments[position]);
+    }
+};
+
+exports.post = function (id, contentType, body, callback) {
     var entry = entries[id];
 
     if (!entry) {
@@ -116,12 +138,49 @@ exports.post = function (id, body, callback) {
     else if (isQueueClosed(entry)) {
         // cannot add element because the queue is already closed
 
-        callback({ code: 400 });
+        callback({ code: 400, message: 'Queue is closed' });
     }
     else {
         // add message to queue 
         var from = entry.queue.length;
-        entry.queue.push(body);
+
+        if (body === null || contentType.match(/^application\/json/) 
+            || (typeof body === 'object' && !Buffer.isBuffer(body))) {
+            // add JSON content directly to the queue
+            config.logger.silly('Posting application/json message', { id: id, message: body });
+            entry.queue.push(body);
+        }
+        else if (entry.params.useDataUri) {
+            // add non-JSON content to the queue as data URI
+            // http://en.wikipedia.org/wiki/Data_URI_scheme
+
+            if (Buffer.isBuffer(body)) {
+                var uri = 'data:' + contentType + ';base64,' + body.toString('base64');
+                config.logger.silly('Posting ' + contentType + ' message as data URI', { id: id, length: body.length });
+                entry.queue.push({ uri: uri });
+            }
+            else {
+                return callback({ code: 400, message: 'Unsupported type of content'});
+            }
+        }
+        else {
+            // add non-JSON content to the queue as an attachment
+
+            entry.attachments['' + entry.queue.length] = {
+                contentType: contentType,
+                body: body
+            };
+
+            var message = { 
+                contentType: contentType,
+                uri: config.relayBaseUri + id + '/' + entry.queue.length + '/attachment' 
+            };
+
+            entry.queue.push(message);
+
+            config.logger.silly('Posting ' + contentType + ' message as attachment', 
+                { id: id, contentType: contentType, length: body.length, uri: message.uri });
+        }
 
         // reset inactivity timeout
         setInactivityTimeout(entry);
@@ -148,5 +207,4 @@ exports.post = function (id, body, callback) {
 
         callback();
     }
-
 };

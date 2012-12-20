@@ -3,7 +3,8 @@ var express = require('express')
   , relay = require('./routes/relay.js')
   , config = require('./src/config.js')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , surlaware = require('./src/surlaware.js');
 
 var app = express();
 
@@ -14,6 +15,7 @@ app.configure(function(){
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
+  app.use(surlaware.bodyBuffer());
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
@@ -32,6 +34,7 @@ app.get('/noun', routes.noun)
 
 app.post('/r', relay.create);
 app.get('/r/:id', relay.poll); // assumes :from === 0
+app.get('/r/:id/:position/attachment', relay.getAttachment);
 app.get('/r/:id/:from', relay.poll);
 app.post('/r/:id', relay.post);
 

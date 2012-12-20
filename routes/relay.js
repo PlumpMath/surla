@@ -40,9 +40,36 @@ exports.poll = function(req, res) {
     });
 };
 
+exports.getAttachment = function(req, res) {
+    db.getAttachment(req.params.id, req.params.position, function (error, attachment) {
+        try {
+            res.set('Cache-Control', 'no-cache');
+            res.set('Access-Control-Allow-Origin', '*');
+
+            if (error) {
+                error.id = req.params.id;
+                error.position = req.params.position;
+                config.logger.verbose('Error getting attachment', error);
+                res.send(error.code, error.message || '');
+            }
+            else {
+                config.logger.verbose('Returning attachment', 
+                    { id: req.params.id, position: req.params.position, contentType: attachment.contentType,
+                      length: attachment.body.length });
+                res.set('Content-Type', attachment.contentType);
+                res.set('Content-Length', attachment.body.length);
+                res.send(200, attachment.body);
+            }            
+        }
+        catch (e) {
+            config.logger.error('Error returning attachment', { id: req.params.id, position: req.params.position, error: e });
+        }
+    });
+};
+
 exports.post = function (req, res) {
     var body = req.get('Content-Length') == 0 ? null : req.body;
-    db.post(req.params.id, body, function (error) {
+    db.post(req.params.id, req.get('Content-Type'), body, function (error) {
         try {
             res.set('Cache-Control', 'no-cache');
             res.set('Access-Control-Allow-Origin', '*');

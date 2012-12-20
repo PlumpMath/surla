@@ -1,4 +1,5 @@
 {
+    "relayBaseUri": "http://surla.mobi/r/",
     "port": 80,
     "twitterConsumerKey": "na",
     "twitterConsumerSecret": "na",
@@ -8,7 +9,7 @@
     "googleClientSecret": "na",
     "facebookAppId": "na",
     "facebookAppSecret": "na",
-    "loggingLevelConsole": "verbose",
+    "loggingLevelConsole": "silly",
     "relayPollTimeout": 30000,
     "inactiveRelayEntryTTL": 300000
 }
