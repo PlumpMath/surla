@@ -11,8 +11,11 @@
             useDataUri: false,
             interaction: {
                 type: 'FileUpload',
-                size: 200
-            }
+                size: 400
+            },
+            done: defaultDone,
+            message: defaultMessage,
+            error: defaultError
         };
 
         $.extend(true, params, options);
@@ -20,9 +23,17 @@
         // TODO: validate params
 
         return this.each(function () {
+            function moveProperty(from, to, name) {
+                to[name] = from[name];
+                delete from[name];
+            }
+
             var $this = $(this);
             var context = { target: $this, params: {} };
             $.extend(true, context.params, params);
+            moveProperty(context.params, context, 'done');
+            moveProperty(context.params, context, 'message');
+            moveProperty(context.params, context, 'error');
             $this.data('surlamobi', context);
             createRelayEntry(context);
         });
@@ -30,8 +41,8 @@
 
     function errorContext(context, text) {
         context.status = 'Error';
-        context.error = new Error(text);
-        throw context.error;
+        context.err = new Error(text);
+        context.error(context);
     }
 
     function createRelayEntry(context) {
@@ -69,145 +80,101 @@
             '&chl=' + escape(qrData);
         context.target.html('<a href="' + qrData + '"><img src="' + qrImageUrl + 
             '" width=' + context.params.interaction.size + ' height=' + context.params.interaction.size +' /></a>');
-    }
-   
- })(jQuery);
-/*
 
- (function () {
-
-    if (!$)
-        throw "phone2web requires jQuery library to be included in the page";
-
-    var relayurl = "http://relay.janczuk.org:31416/";
-    var parameterEncoding = {
-        name: 1,
-        address: 2,
-        city: 4,
-        zip: 8,
-        state: 16,
-        phone: 32,
-        email: 64,
-        visa: 128          
-    };
-    
-    // this is a client side JS library that helps fill out web forms using QR codes   
-    
-    function default_onresponse (options, response) {
-        alert("got response from relay!");
+        startPolling(context);
     }
 
-    function generate_qr_data(options) {
-        var data = relayurl + "?h=" + window.location.hostname;
-        var parameters = 0;
-        for (var n in options.require) {
-            parameters |= parameterEncoding[n];
-        }
-
-        data += "&p=" + parameters;
-
-        // TODO, requestid should be assigned by the relay
-        options.requestid = Math.floor(Math.random() * 1000000000); 
-        data += "&id=" + options.requestid;
-
-        return data;
-    }
-
-    function generate_qr_image_url(qrdata) {
-        var url = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" + escape(qrdata);
-
-        return url;    
-    }
-
-    function stopPolling(options) {
-        $(options.qr).html('QR inactive');
-    }
-
-    function processResponse(options, data) {
-        for (var n in options.require) {
-            if (data[n]) {
-                $(options.require[n]).val(data[n]);
-            }
-        }
-    }
-
-    function startPolling(options) {
-       $.ajax({
-            url: relayurl + options.requestid,
+    function startPolling(context) {
+        context.status = 'Polling';
+        context.from = context.from || 0;
+        $.ajax({
+            type: 'GET',
+            url: relayUrlBase + '/r/' + context.relayParams.id + '/' + context.from,
             success: function(data, statusText, xhr) {
-                processResponse(options, data);    
-                stopPolling(options);
-            },
-            error: function(xhr, statusText, err) {
-                if (xhr.status === 404) {
-                    // data for that request is not available at the relay, resume polling
-                    startPolling(options);
+                // successful response; data length may be zero if there are no new messages
+                context.from += data.length;
+                if (data.length > 0) {
+                    context.message(data, context);
+                }
+
+                if (data.length > 0 && data[data.length - 1] === null) {
+                    // relay entry has been closed - interaction has successfuly completed
+                    context.status = 'Done';
+                    context.done(context);
                 }
                 else {
-                    // other error, stop polling and provide a hint to the browser user that QR support is off
-                    stopPolling(options);
+                    startPolling(context);
+                }
+            },
+            error: function(xhr, statusText, err) {
+                if (xhr.status === 410) {
+                    // entry expired at the relay without interaction finishing; create new entry
+                    delete context.from;
+                    delete context.status;
+                    delete context.pollErrorCount;
+                    delete context.relayParams;
+                    createRelayEntry(context);
+                }
+                else if (xhr.status === 416) {
+                    // relay entry has been closed - interaction has successfuly completed
+                    context.status = 'Done';
+                    context.done(context);
+                }
+                else if (xhr.status === 404 || xhr.status === 400) {
+                    // unexpected client side error
+                    errorContext(context, 'Error polling relay entry. HTTP status: ' + xhr.status +
+                        '. Status text: ' + statusText + '. Error: ' + err + 
+                        '. Body: ' + xhr.responseText);
+                }
+                else {
+                    // other error, retry polling up to 3 times before reporting an error
+                    context.pollErrorCount = context.pollErrorCount || 0;
+                    context.pollErrorCount++;
+                    if (context.pollErrorCount === 3) {
+                        errorContext(context, 'Unable to poll relay entry. HTTP status: ' + xhr.status +
+                            '. Status text: ' + statusText + '. Error: ' + err + 
+                            '. Body: ' + xhr.responseText);
+                    }
+                    else {
+                        startPolling(context);
+                    }
                 }
             }
-       });        
+       });                
     }
 
-    // find the <script> tag that references this script
-    
-    var self = null;
-    
-    for (var n in document.scripts) {
-        if (document.scripts[n].src.toLowerCase().indexOf("phone2web.js") !== -1) {
-            self = document.scripts[n];
-            break; 
+    function defaultDone(context) {
+        if (context.from === 0) {
+            // no messages were received
+            context.target.html('<div width=' + context.params.interaction.size 
+                + ' height=' + context.params.interaction.size + '>&nbsp;</div>');
         }
     }
 
-    if (!self)
-        throw "A script tag that includes the phone2web.js script has not been found on the page."
+    var defaultMessageHandlers = {}
 
-    // parse the options of the script contained in the body of the <script> element
-
-    var options = JSON.parse(self.text);
-
-    if (typeof options !== "object")
-        throw "The content of the script tag referencing the phone2web.js script must be a JSON object";
-
-    // normalize options
-
-    if (!options.require) {
-        var newOptions = {
-            require: {}
-        };
-        
-        for (var n in options) {
-            newOptions.require[options[n]] = "#" + options[n];
+    defaultMessageHandlers.handleFileUploadMessage = function (data, context) {
+        if (typeof data[0].uri === 'string' 
+            && typeof data[0].contentType === 'string'
+            && data[0].contentType.match(/^image/)) {
+            context.target.html('<img src="' + data[0].uri + 
+                '" width=' + context.params.interaction.size + ' height=' + context.params.interaction.size +' />');        
         }
+        else {
+            errorContext(context, 'The default FileUpload interaction requires that the upload file is an image. ' +
+                'Content-Type: ' + data[0].contentType);
+        }
+    };
 
-        options = newOptions;
+    function defaultMessage(data, context) {
+        var func = defaultMessageHandlers['handle' + context.params.interaction.type + 'Message'] || function () {};
+        func(data, context);
     }
 
-    options.qr = options.qr || "#qr";
-    options.onresponse = options.onresponse || function (response) {
-        default_onresponse(options, response);
+    function defaultError(context) {
+        context.target.html('<div width=' + context.params.interaction.size 
+            + ' height=' + context.params.interaction.size + '>Error. Register error handler to capture.</div>');
+        throw context.err;
     }
 
-    // generate the QR code data
-
-    var qrdata = generate_qr_data(options);
-
-    // generate the QR code image URL
-
-    var qrimage = generate_qr_image_url(qrdata);
-
-    // insert the QR image into the specified location on the page
-
-    $(function() {
-        $(options.qr).html('<img src="' + qrimage + '" width=150 height=150 />');
-    });
-
-    // start polling for the result
-
-    startPolling(options);
-
-})();
-*/
+ })(jQuery);

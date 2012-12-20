@@ -28,6 +28,8 @@ app.configure('development', function(){
 
 // the web site
 
+app.options('*', routes.options);
+
 app.get('/', routes.index);
 app.get('/noun', routes.noun);
 app.get('/upload', routes.upload);
