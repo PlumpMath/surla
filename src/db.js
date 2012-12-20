@@ -44,7 +44,8 @@ exports.create = function (params, ttl, callback) {
 
     var defaultParams = {
         maxQueueLength: 1,
-        useDataUri: false
+        useDataUri: false,
+        interaction: null
     };
 
     for (var i in params) {

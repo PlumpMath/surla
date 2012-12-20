@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include head.common.ejs %>
+    <script src="/scripts/surlamobi.js"></script>
+    <style>
+        .sm-icon { display: inline-block; background-size: 100%; width: 100px; height: 100px; text-indent: -999em; text-align: left; }
+        .sm-icon.upload { background: url("images/noun_project_6172.svg"); }
+        .sm-center { text-align: center; }
+    </style>
+
+    <script type="text/javascript">
+      $(function () {
+        $('#qr').surlamobi({});
+      });
+    </script>
+
+  </head>
+  <body>
+    <div class="container">
+      <%include header.common.ejs %>
+      <div class="row">
+        <div class="span3 sm-center">
+            <span class="sm-icon upload">
+                &nbsp;
+            </span>
+            <p class="lead sm-category">Upload</p>
+        </div>
+        <div class="span9">
+          <p class="lead">Scan the code to upload a picture from your phone to this web site</p>
+          <div id="qr"></div>
+        </div>
+      </div>   
+
+      <hr/>
+
+      <footer>
+        <div class="row">
+            <div class="span2">
+                &copy; surla.mobi 2012
+            </div>
+            <div class="span3 offset7" class="muted" style="text-align: right">
+                <a href="/noun">The Noun Project Attributions</a>
+            </div>
+        </div>
+      </footer>       
+    </div> <!-- /container -->
+  </body>
+</html>

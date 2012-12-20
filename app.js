@@ -29,7 +29,8 @@ app.configure('development', function(){
 // the web site
 
 app.get('/', routes.index);
-app.get('/noun', routes.noun)
+app.get('/noun', routes.noun);
+app.get('/upload', routes.upload);
 
 // the relay
 
