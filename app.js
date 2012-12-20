@@ -35,6 +35,7 @@ app.get('/noun', routes.noun)
 
 app.post('/r', relay.create);
 app.get('/r/:id', relay.poll); // assumes :from === 0
+app.get('/r/:id/stats', relay.stats); 
 app.get('/r/:id/:position/attachment', relay.getAttachment);
 app.get('/r/:id/:from', relay.poll);
 app.post('/r/:id', relay.post);

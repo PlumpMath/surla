@@ -6,6 +6,7 @@ var entries = {};
 if (config.seedRelayEntries) {
     config.seedRelayEntries.forEach(function (entry) {
         entries[entry.id] = entry;
+        entries[entry.id].created = new Date().toString();
     });
 }
 
@@ -59,6 +60,7 @@ exports.create = function (params, ttl, callback) {
     var id = uuid.v4().replace(/-/g, '');
     var entry = {
         id: id,
+        created: new Date().toString(),
         params: defaultParams,
         queue: [],
         attachments: {}
@@ -167,7 +169,7 @@ exports.post = function (id, contentType, body, callback) {
             if (Buffer.isBuffer(body)) {
                 body = body.toString('utf8');
             }
-            
+
             config.logger.silly('Posting application/json message', { id: id, message: body });
             entry.queue.push(body);
         }

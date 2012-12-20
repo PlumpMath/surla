@@ -88,3 +88,26 @@ exports.post = function (req, res) {
         }        
     });
 }
+
+exports.stats = function (req, res) {
+    db.get(req.params.id, function (error, entry) {
+        res.set('Cache-Control', 'no-cache');
+        res.set('Access-Control-Allow-Origin', '*');
+
+        if (error) {
+            res.send(error.code, error.message || '');
+        }
+        else {
+            var result = {
+                id: entry.id,
+                created: entry.created,
+                params: entry.params,
+                pendingRequests: entry.pendingRequests ? Object.getOwnPropertyNames(entry.pendingRequests).length : 0,
+                queueLength: entry.queue.length,
+                attachments: Object.getOwnPropertyNames(entry.attachments),
+            };
+
+            res.json(result);
+        }
+    });
+};
