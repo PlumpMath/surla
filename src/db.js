@@ -3,6 +3,12 @@ var uuid = require('node-uuid')
 
 var entries = {};
 
+if (config.seedRelayEntries) {
+    config.seedRelayEntries.forEach(function (entry) {
+        entries[entry.id] = entry;
+    });
+}
+
 function isQueueClosed(entry) {
     return (entry.queue.length > 0 && entry.queue[entry.queue.length - 1] === null) ? true : false;
 }
@@ -107,6 +113,17 @@ exports.poll = function (id, from, timeout, callback) {
     }
 };
 
+exports.get = function (id, callback) {
+    var entry = entries[id];
+
+    if (!entry) {
+        callback({ code: 404, message: 'Entry does not exist' });
+    }
+    else {
+        callback(null, entry);
+    }
+};
+
 exports.getAttachment = function (id, position, callback) {
     var entry = entries[id];
 
@@ -147,6 +164,10 @@ exports.post = function (id, contentType, body, callback) {
         if (body === null || contentType.match(/^application\/json/) 
             || (typeof body === 'object' && !Buffer.isBuffer(body))) {
             // add JSON content directly to the queue
+            if (Buffer.isBuffer(body)) {
+                body = body.toString('utf8');
+            }
+            
             config.logger.silly('Posting application/json message', { id: id, message: body });
             entry.queue.push(body);
         }

@@ -1,6 +1,7 @@
 var express = require('express')
   , routes = require('./routes')
   , relay = require('./routes/relay.js')
+  , interaction = require('./routes/interaction.js')
   , config = require('./src/config.js')
   , http = require('http')
   , path = require('path')
@@ -37,6 +38,11 @@ app.get('/r/:id', relay.poll); // assumes :from === 0
 app.get('/r/:id/:position/attachment', relay.getAttachment);
 app.get('/r/:id/:from', relay.poll);
 app.post('/r/:id', relay.post);
+
+// the interaction views
+
+app.get('/v/:id', interaction.get);
+app.post('/v/:id', interaction.post);
 
 http.createServer(app).listen(app.get('port'), function(){
   config.logger.info("Express server listening on port " + app.get('port'));

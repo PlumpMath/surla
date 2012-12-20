@@ -11,5 +11,20 @@
     "facebookAppSecret": "na",
     "loggingLevelConsole": "silly",
     "relayPollTimeout": 30000,
-    "inactiveRelayEntryTTL": 300000
+    "inactiveRelayEntryTTL": 600000,
+
+    "seedRelayEntries": [
+        {
+            "id": "upload",
+            "params": {
+                "maxQueueLength": 1,
+                "useDataUri": false,
+                "interaction": {
+                    "type": "FileUpload"
+                }
+            },
+            "queue": [],
+            "attachments": {}
+        }
+    ]
 }
