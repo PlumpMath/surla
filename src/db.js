@@ -86,11 +86,17 @@ exports.poll = function (id, from, timeout, callback) {
     else if (entry.queue.length > from) {
         // data ready to return
 
+        // reset inactivity timeout
+        setInactivityTimeout(entry);        
+
         callback(null, entry.queue.slice(from))
     }
     else if (isQueueClosed(entry)) {
         // request out of range: response queue is already closed 
         // while `from` points to an index beyond the last element in the queue
+
+        // reset inactivity timeout
+        setInactivityTimeout(entry);        
 
         callback({ code: 416, message: 'Response queue is already closed' });
     }
@@ -113,6 +119,9 @@ exports.poll = function (id, from, timeout, callback) {
                 callback(null, []);
             }, timeout)
         };
+
+        // reset inactivity timeout
+        setInactivityTimeout(entry);        
     }
 };
 
@@ -123,6 +132,9 @@ exports.get = function (id, callback) {
         callback({ code: 404, message: 'Entry does not exist' });
     }
     else {
+        // reset inactivity timeout
+        setInactivityTimeout(entry);
+
         callback(null, entry);
     }
 };
@@ -142,6 +154,9 @@ exports.getAttachment = function (id, position, callback) {
     }
     else {
         // return the attachment
+
+        // reset inactivity timeout
+        setInactivityTimeout(entry);
 
         callback(null, entry.attachments[position]);
     }
