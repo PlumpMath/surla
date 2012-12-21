@@ -7,6 +7,11 @@
         .sm-icon { display: inline-block; background-size: 100%; width: 100px; height: 100px; text-indent: -999em; text-align: left; }
         .sm-icon.upload { background: url("images/noun_project_6172.svg"); }
         .sm-center { text-align: center; }
+        .sm-qr {
+          min-height: 400px;
+          height: auto !important;
+          height: 400px;
+        }        
     </style>
 
     <script type="text/javascript">
@@ -22,8 +27,8 @@
       <div class="row">
         <div class="span8 sm-center">
           <p><span class="lead">Scan the code to upload a picture from your phone to this web site</span><br>
-          <span class="muted small"><em>(Works with Android phones only. Support for iPhone and Windows Phone coming soon.)</em></span></p>
-          <div id="qr"></div>
+          <span class="muted small"><em>(Works with Android phones and Windows Surface only. Support for iPhone and Windows Phone coming soon.)</em></span></p>
+          <div id="qr" class="sm-qr"></div>
         </div>
         <div class="span4">
             <p class="lead">How it works</p>
@@ -39,12 +44,6 @@
               <li>Content editing sites</li>
               <li>...</li>
             </ul>
-            &nbsp;<br>
-            &nbsp;<br>
-            &nbsp;<br>
-            &nbsp;<br>
-            &nbsp;<br>
-            &nbsp;<br>
         </div>
       </div>   
 

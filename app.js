@@ -34,6 +34,7 @@ app.get('/', routes.index);
 app.get('/noun', routes.noun);
 app.get('/upload', routes.upload);
 app.get('/sniffer', routes.sniffer);
+app.get('/remote', routes.remote);
 
 // the relay
 

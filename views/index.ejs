@@ -12,6 +12,7 @@
         .sm-icon.upload { background: url("images/noun_project_6172.svg"); }
         .sm-icon.sniffer { background: url("images/noun_project_5048.svg"); }
         .sm-center { text-align: center; }
+        .span3 a { color: inherit; text-decoration: none; }
     </style>
   </head>
   <body>
@@ -19,8 +20,10 @@
       <%include header.common.ejs %>
       <div class="row">
         <div class="span3 sm-center">
-            <a href="http://upload.surla.mobi/upload" class="sm-icon upload"/>&nbsp;</a>
-            <p class="lead">Upload</p>
+            <a href="http://upload.surla.mobi/upload">
+              <span class="sm-icon upload">&nbsp;</span>
+              <p class="lead">Upload<p>
+            </a>
         </div>
         <div class="span3 sm-center">
             <span class="sm-icon forms"/>&nbsp;</span>
@@ -31,8 +34,10 @@
             <p class="lead muted">Payments<br>(coming soon)</p>
         </div>  
         <div class="span3 sm-center">
-            <span class="sm-icon remote"/>&nbsp;</span>
-            <p class="lead muted">Remote control<br>(coming soon)</p>
+            <a href="http://remote.surla.mobi/remote">
+              <span class="sm-icon remote">&nbsp;</span>
+              <p class="lead">Remote control<p>
+            </a>
         </div>      
       </div>
       <div class="row">
@@ -45,8 +50,10 @@
             <p class="lead muted">Login<br>(coming soon)</p>          
         </div>  
         <div class="span3 sm-center">
-            <a href="http://sniffer.surla.mobi/sniffer" class="sm-icon sniffer"/>&nbsp;</a>
-            <p class="lead">Sniffer</p>
+            <a href="http://sniffer.surla.mobi/sniffer">
+              <span class="sm-icon sniffer">&nbsp;</span>
+              <p class="lead">Sniffer<p>
+            </a>
         </div>  
       </div>   
 
@@ -57,7 +64,7 @@
             <div class="span2">
                 &copy; surla.mobi 2012
             </div>
-            <div class="span3 offset7" class="muted" style="text-align: right">
+            <div class="span4 offset6" class="muted" style="text-align: right">
                 <a href="/noun">The Noun Project Attributions</a>
             </div>
         </div>

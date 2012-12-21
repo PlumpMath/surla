@@ -14,6 +14,10 @@ exports.sniffer = function (req, res) {
     res.render('sniffer');
 };
 
+exports.remote = function (req, res) {
+    res.render('remote');
+};
+
 exports.options = function (req, res) {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
