@@ -33,6 +33,16 @@ exports.get._Sniffer = function (entry, req, res) {
     });
 };
 
+exports.get._Remote = function (entry, req, res) {
+    config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
+    var relayUrl = config.relayBaseUri + req.params.id;
+    res.render('RemoteView', { 
+        relayUrl: relayUrl, 
+        holdEvents: entry.params.interaction.holdEvents || false,
+        cacheInterval: (typeof entry.params.interaction.cacheInterval === 'undefined' ? 500 : entry.params.interaction.cacheInterval)
+    });
+}
+
 exports.post = function(req, res) {
     db.get(req.params.id, function (error, entry) {
         if (error) {

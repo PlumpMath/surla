@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>surla.mobi remote control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bridging the gap between web, brick, and mobile">
+    <meta name="author" content="Tomasz Janczuk">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="/scripts/gesture_detector.js"></script>
+    <style>
+      html, body { margin: 0; width: 100%; height: 100% }
+      *.unselectable {
+         -moz-user-select: -moz-none;
+         -khtml-user-select: none;
+         -webkit-user-select: none;
+         -ms-user-select: none;
+         user-select: none;
+      }      
+      *.error { color: red; }
+    </style>
+  </head>
+  <body unselectable="on" class="unselectable">
+    <h1>Remote control</h1>
+    <p>Tap, double tap, drag, move, pinch.<br> 
+    Events emitted: <span id="counter">0</span><br>
+    <span id="error" class="error">&nbsp;</span></p>
+    <p>Thank you for using http://surla.mobi</p>        
+    <script type="text/javascript">  
+        var relayUrl = '<%= relayUrl %>';
+        var body = document.getElementsByTagName('body')[0];
+        var counter = document.getElementById('counter');
+        var gd = new GestureDetector(body, { holdEvents: <%= holdEvents %> });
+        var cacheInterval = <%= cacheInterval %>;
+        var eventCount = 0;
+        var events;
+        var pastEvents;
+        var communicationErrors = 0;
+        var interval;
+        var failed;
+        
+        gd.startDetecting();
+
+        addHandler('tap');
+        addHandler('dbltap');
+        addHandler('pan');
+        addHandler('swipe');
+        addHandler('holdstart');
+        addHandler('holdmove');
+        addHandler('holdend');
+        addHandler('transform');
+
+        if (cacheInterval > 0) {
+          interval = setInterval(function() {
+            if (events || pastEvents) {
+              send(events);
+              events = undefined;
+            }
+          }, cacheInterval);
+        }
+
+        emit({ type: 'hello' });
+
+        function addHandler(eventType) {
+          body.addEventListener(eventType, function (event) {
+            var details = { type: eventType };
+            $.extend(true, details, event.detail);
+            emit(details);
+          }, true);
+        }
+
+        function emit(details) {
+          if (failed) {
+            return;
+          }
+
+          eventCount++;
+          counter.innerHTML = eventCount + '';
+          if (cacheInterval == 0) {
+            send([ details ]);
+          }
+          else if (events) {
+            events.push(details);
+          }
+          else {
+            events = [ details ];
+          }
+        }
+
+        function send(events) {
+          if (events) {
+            if (pastEvents) {
+              pastEvents = pastEvents.concat(events);
+            }
+            else {
+              pastEvents = events;
+            }
+          }
+
+          $.ajax({
+              type: 'POST',
+              url: relayUrl,
+              contentType: 'application/json',
+              data: JSON.stringify(pastEvents),
+              processData: false,
+              success: function(data, statusText, xhr) {
+                  if (xhr.status === 200) {
+                      communicationErrors = 0;
+                      pastEvents = undefined;
+                  }
+                  else {
+                    fail('Communication error: ' + xhr.status);
+                  }
+              },
+              error: function(xhr, statusText, err) {
+                  communicationErrors++;
+                  if (communicationErrors == 5) {
+                    fail('Communication error: ' + (xhr.status > 0 ? xhr.status : 'unable to connect to surla.mobi relay'));
+                  }
+              }
+          });          
+        }
+
+        function fail(error) {
+          if (interval) {
+            clearInterval(interval);
+          }
+
+          document.getElementById('error').innerHTML = error;
+          failed = true;
+        }
+    </script>    
+  </body>
+</html>

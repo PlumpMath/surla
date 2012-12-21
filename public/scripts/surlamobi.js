@@ -68,7 +68,7 @@
                     '. Status text: ' + statusText + '. Error: ' + err + 
                     '. Body: ' + xhr.responseText);
             }
-       });
+        });
     }
 
     function createQRCode(context) {
