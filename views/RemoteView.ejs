@@ -35,15 +35,18 @@
     <h1>Remote control</h1>
     <p>Tap, double tap, drag, move, pinch.<br> 
     Events emitted: <span id="counter">0</span><br>
+    Messages sent: <span id="posts">0</span><br>
     <span id="error" class="error">&nbsp;</span></p>
     <p>Thank you for using http://surla.mobi</p>        
     <script type="text/javascript">  
         var relayUrl = '<%= relayUrl %>';
         var body = document.getElementsByTagName('body')[0];
         var counter = document.getElementById('counter');
+        var posts = document.getElementById('posts');
         var gd = new GestureDetector(body, { holdEvents: <%= holdEvents %> });
         var cacheInterval = <%= cacheInterval %>;
         var eventCount = 0;
+        var postCount = 0;
         var events;
         var communicationErrors = 0;
         var interval;
@@ -102,6 +105,9 @@
 
           activePost = true;
           postedEvents = events.length;
+          postCount++;
+          posts.innerHTML = postCount + '';
+
           $.ajax({
               type: 'POST',
               url: relayUrl,
