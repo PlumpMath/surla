@@ -45,10 +45,11 @@
         var cacheInterval = <%= cacheInterval %>;
         var eventCount = 0;
         var events;
-        var pastEvents;
         var communicationErrors = 0;
         var interval;
         var failed;
+        var activePost;
+        var postedEvents;
         
         gd.startDetecting();
 
@@ -62,12 +63,7 @@
         addHandler('transform');
 
         if (cacheInterval > 0) {
-          interval = setInterval(function() {
-            if (events || pastEvents) {
-              send(events);
-              events = undefined;
-            }
-          }, cacheInterval);
+          interval = setInterval(send, cacheInterval);
         }
 
         emit({ type: 'hello' });
@@ -87,43 +83,51 @@
 
           eventCount++;
           counter.innerHTML = eventCount + '';
-          if (cacheInterval == 0) {
-            send([ details ]);
-          }
-          else if (events) {
+          if (events) {
             events.push(details);
           }
           else {
             events = [ details ];
           }
+
+          if (cacheInterval == 0) {
+            send();
+          }
         }
 
-        function send(events) {
-          if (events) {
-            if (pastEvents) {
-              pastEvents = pastEvents.concat(events);
-            }
-            else {
-              pastEvents = events;
-            }
+        function send() {
+          if (activePost || !events) {
+            return;
           }
 
+          activePost = true;
+          postedEvents = events.length;
           $.ajax({
               type: 'POST',
               url: relayUrl,
               contentType: 'application/json',
-              data: JSON.stringify(pastEvents),
+              data: JSON.stringify(events),
               processData: false,
               success: function(data, statusText, xhr) {
+                  activePost = false;                  
                   if (xhr.status === 200) {
-                      communicationErrors = 0;
-                      pastEvents = undefined;
+                    communicationErrors = 0;
+                    if (events.length === postedEvents) {
+                      events = undefined;
+                    }
+                    else {
+                      events.splice(0, postedEvents);
+                      if (cacheInterval == 0) {
+                        send();
+                      }
+                    }                    
                   }
                   else {
                     fail('Communication error: ' + xhr.status);
                   }
               },
               error: function(xhr, statusText, err) {
+                  activePost = false;
                   communicationErrors++;
                   if (communicationErrors == 5) {
                     fail('Communication error: ' + (xhr.status > 0 ? xhr.status : 'unable to connect to surla.mobi relay'));
