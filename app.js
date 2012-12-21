@@ -33,6 +33,7 @@ app.options('*', routes.options);
 app.get('/', routes.index);
 app.get('/noun', routes.noun);
 app.get('/upload', routes.upload);
+app.get('/sniffer', routes.sniffer);
 
 // the relay
 

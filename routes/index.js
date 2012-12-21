@@ -10,6 +10,10 @@ exports.upload = function (req, res) {
     res.render('upload');
 };
 
+exports.sniffer = function (req, res) {
+    res.render('sniffer');
+};
+
 exports.options = function (req, res) {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');

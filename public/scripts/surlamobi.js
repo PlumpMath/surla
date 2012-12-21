@@ -166,6 +166,10 @@
         }
     };
 
+    defaultMessageHandlers.handleSnifferMessage = function (data, context) {
+        context.target.html('<pre>' + $('<div/>').text(JSON.stringify(data[0], null, 2)).html() + '</pre>');
+    };
+
     function defaultMessage(data, context) {
         var func = defaultMessageHandlers['handle' + context.params.interaction.type + 'Message'] || function () {};
         func(data, context);

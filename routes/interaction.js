@@ -11,8 +11,24 @@ exports.get = function(req, res) {
             res.send(404, 'There is no view associated with this resource');
         }
         else {
-            config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
-            res.render(entry.params.interaction.type, { entry: entry, id: req.params.id });
+            var func = exports.get['_' + entry.params.interaction.type];
+            return func(entry, req, res);
+        }
+    });
+};
+
+exports.get._FileUpload = function (entry, req, res) {
+    config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
+    res.render('FileUpload', { entry: entry, id: req.params.id });
+};
+
+exports.get._Sniffer = function (entry, req, res) {
+    db.post(req.params.id, 'application/json', { headers: req.headers || {} }, function (error) {
+        if (error) {
+            res.send(error.code, error.message || '');
+        }
+        else {
+            res.render('thankyou');
         }
     });
 };
