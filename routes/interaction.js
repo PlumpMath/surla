@@ -17,13 +17,14 @@ exports.get = function(req, res) {
                 throw new Error('Unsupported interaction type: ' + entry.params.interaction.type);
             }
 
+            config.logger.verbose('Start interaction', { type: entry.params.interaction.type, id: req.params.id });
+
             return func(entry, req, res);
         }
     });
 };
 
 exports.get._FileUpload = function (entry, req, res) {
-    config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
     res.render('FileUpload', { entry: entry, id: req.params.id });
 };
 
@@ -39,7 +40,6 @@ exports.get._Sniffer = function (entry, req, res) {
 };
 
 exports.get._Remote = function (entry, req, res) {
-    config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
     var relayUrl = config.relayBaseUri + req.params.id;
     res.render('RemoteView', { 
         relayUrl: relayUrl, 
@@ -49,7 +49,6 @@ exports.get._Remote = function (entry, req, res) {
 }
 
 exports.get._Login = function (entry, req, res) {
-    config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
     var relayUrl = config.relayBaseUri + req.params.id;
     var model = {};
     if (!entry.params.interaction.providers) {
@@ -63,7 +62,8 @@ exports.get._Login = function (entry, req, res) {
 
     db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
         if (error) {
-            res.send(500)
+            config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
+            res.send(500);
         }
         else {
             res.render('LoginView', model);
