@@ -18,6 +18,10 @@ exports.remote = function (req, res) {
     res.render('remote');
 };
 
+exports.login = function (req, res) {
+    res.render('login');
+};
+
 exports.options = function (req, res) {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');

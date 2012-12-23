@@ -1,5 +1,6 @@
 {
     "relayBaseUri": "http://surla.mobi/r/",
+    "loginBaseUri": "http://surla.mobi/login/",
     "port": 80,
     "twitterConsumerKey": "na",
     "twitterConsumerSecret": "na",

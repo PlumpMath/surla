@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>surla.mobi login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bridging the gap between web, brick, and mobile">
+    <meta name="author" content="Tomasz Janczuk">
+  </head>
+  <body>
+    <form method="POST">
+      <h1>Select login method</h1>
+      <% if (enableTwitter) { %>
+        <p><input type="submit" name="provider" value="Twitter"/></p>
+      <% } %>
+      <% if (enableFacebook) { %>
+        <p><input type="submit" name="provider" value="Facebook"/></p>
+      <% } %>
+    </form>
+  </body>
+</html>

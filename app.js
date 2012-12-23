@@ -5,7 +5,8 @@ var express = require('express')
   , config = require('./src/config.js')
   , http = require('http')
   , path = require('path')
-  , surlaware = require('./src/surlaware.js');
+  , surlaware = require('./src/surlaware.js')
+  , authentication = require('./routes/authentication.js');
 
 var app = express();
 
@@ -35,6 +36,7 @@ app.get('/noun', routes.noun);
 app.get('/upload', routes.upload);
 app.get('/sniffer', routes.sniffer);
 app.get('/remote', routes.remote);
+app.get('/login', routes.login);
 
 // the relay
 
@@ -49,6 +51,7 @@ app.post('/r/:id', relay.post);
 
 app.get('/v/:id', interaction.get);
 app.post('/v/:id', interaction.post);
+app.get('/login/facebook', authentication.getFacebook);
 
 http.createServer(app).listen(app.get('port'), function(){
   config.logger.info("Express server listening on port " + app.get('port'));

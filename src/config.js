@@ -3,7 +3,7 @@ var fileConfig = require('./config.json')
 
 // For every setting FOO, override it with SURLA_FOO environment variable if defined
 for (var i in fileConfig) {
-    fileConfig[i] = process.env['SURLA_' + i] || fileConfig[i];
+    fileConfig[i] = process.env['SURLA_' + i.toUpperCase()] || fileConfig[i];
 }
 
 fileConfig.logger = winston;

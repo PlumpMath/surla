@@ -1,6 +1,7 @@
 var db = require('../src/db.js')
     , config = require('../src/config.js')
-    , fs = require('fs');
+    , fs = require('fs')
+    , authentication = require('./authentication.js');
 
 exports.get = function(req, res) {
     db.get(req.params.id, function (error, entry) {
@@ -12,6 +13,10 @@ exports.get = function(req, res) {
         }
         else {
             var func = exports.get['_' + entry.params.interaction.type];
+            if (!func) {
+                throw new Error('Unsupported interaction type: ' + entry.params.interaction.type);
+            }
+
             return func(entry, req, res);
         }
     });
@@ -43,6 +48,29 @@ exports.get._Remote = function (entry, req, res) {
     });
 }
 
+exports.get._Login = function (entry, req, res) {
+    config.logger.verbose('Rendering view', { type: entry.params.interaction.type, id: req.params.id });
+    var relayUrl = config.relayBaseUri + req.params.id;
+    var model = {};
+    if (!entry.params.interaction.providers) {
+        model.enableTwitter = true;
+        model.enableFacebook = true;
+    }
+    else {
+        model.enableTwitter = entry.params.interaction.providers.some(function (item) { return item === 'Twitter'; });
+        model.enableFacebook = entry.params.interaction.providers.some(function (item) { return item === 'Facebook'; });
+    }
+
+    db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
+        if (error) {
+            res.send(500)
+        }
+        else {
+            res.render('LoginView', model);
+        }
+    });    
+}
+
 exports.post = function(req, res) {
     db.get(req.params.id, function (error, entry) {
         if (error) {
@@ -57,6 +85,24 @@ exports.post = function(req, res) {
         }
     });
 };
+
+exports.post._Login = function postFileUpload(entry, req, res) {
+    if (!req.body.provider) {
+        res.send(400, 'Login provider not specified');
+    }
+    else {
+        config.logger.verbose('Received postback from Login view', 
+            { id: req.params.id, provider: req.body.provider });
+
+        var func = authentication['post' + req.body.provider];
+        if (func) {
+            func(entry, req, res);
+        }
+        else {
+            res.send(400, 'Login provider not supported');
+        }
+    }    
+}
 
 exports.post._FileUpload = function postFileUpload(entry, req, res) {
     if (!req.files.upfile) {
