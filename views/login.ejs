@@ -19,7 +19,7 @@
           maxQueueLength: 2,
           interaction: {
             type: 'Login',
-            providers: ['Facebook']
+            providers: ['Facebook', 'Twitter']
           },
           message: onMessage
         });
@@ -35,19 +35,27 @@
                   $('#qr').html('<p class="lead">Login failed</p>'); 
                 }
                 else {
-                  $('#qr').html('<p class="lead">Login successful</p><p class="lead" id="welcome">&nbsp;</p><img id="picture"/>'); 
-                  $.ajax({
-                    url: 'https://graph.facebook.com/me?access_token=' + message.data.access_token,
-                    dataType: 'json',
-                    success: function (data, statusText, xhr) {
-                      if (xhr.status != 200) {
-                        return;
-                      }
+                  $('#qr').html('<p class="lead">Login with <strong>' + message.provider + '</strong> '
+                    + 'successful</p><p class="lead" id="welcome">&nbsp;</p><img id="picture"/>'); 
+                  if (message.provider == 'Facebook') {
+                    $.ajax({
+                      url: 'https://graph.facebook.com/me?access_token=' + message.data.access_token,
+                      dataType: 'json',
+                      success: function (data, statusText, xhr) {
+                        if (xhr.status != 200) {
+                          return;
+                        }
 
-                      $('#welcome').text('Welcome, ' + data.name);
-                      $('#picture').attr('src', 'https://graph.facebook.com/' + data.username + '/picture?type=large');
-                    }
-                  });
+                        $('#welcome').text('Welcome, ' + data.name);
+                        $('#picture').attr('src', 'https://graph.facebook.com/' + data.username + '/picture?type=large');
+                      }
+                    });
+                  }
+                  else {
+                    // Twitter
+                    $('#welcome').text('Welcome, ' + message.data.profile.name);
+                    $('#picture').attr('src', message.data.profile.profile_image_url);
+                  }
                 }
               }
             }
@@ -71,6 +79,7 @@
             <ul>
               <li>Super Single Sign-on</li>
               <li>Security and convenience when logging in from public computers</li>
+              <li>Convenient secondary form of authentication</li>
               <li>Potential cross-provider identity association</p>
             </ul>
         </div>

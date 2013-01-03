@@ -16,6 +16,7 @@ app.configure(function(){
   app.set('view engine', 'ejs');
   app.use(express.favicon());
   app.use(express.logger('dev'));
+  app.use(express.cookieParser());
   app.use(express.bodyParser());
   app.use(surlaware.bodyBuffer());
   app.use(express.methodOverride());
@@ -52,6 +53,7 @@ app.post('/r/:id', relay.post);
 app.get('/v/:id', interaction.get);
 app.post('/v/:id', interaction.post);
 app.get('/login/facebook', authentication.getFacebook);
+app.get('/login/twitter', authentication.getTwitter);
 
 http.createServer(app).listen(app.get('port'), function(){
   config.logger.info("Express server listening on port " + app.get('port'));
