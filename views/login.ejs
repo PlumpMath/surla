@@ -30,6 +30,7 @@
               if (message) {
                 if (message.hello) {
                   $('#qr').html('<p class="lead">Login in progress...</p>');
+                  $('#actionCall').hide();
                 }
                 else if (!message.success) {
                   $('#qr').html('<p class="lead">Login failed</p>'); 
@@ -69,7 +70,7 @@
       <%include header.common.ejs %>
       <div class="row">
         <div class="span8 sm-center">
-          <p class="lead">Scan the code to log in</p>
+          <p class="lead" id="actionCall">Scan the code to log in</p>
           <div id="qr" class="sm-qr"></div>
         </div>
         <div class="span4">

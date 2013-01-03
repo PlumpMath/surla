@@ -18,7 +18,7 @@ exports.postFacebook = function (entry, req, res) {
 exports.getFacebook = function (req, res) {
     if (!req.query.surla_id) {
         config.logger.error('Redirect from Facebook login lacks surla_id parameter', req.query);
-        return res.render(400, 'Invalid response from Facebook');
+        return res.send(400, 'Invalid response from Facebook');
     }
 
     db.get(req.query.surla_id, function (error, entry) {
@@ -170,12 +170,12 @@ exports.getTwitter = function (req, res) {
 
     if (!req.query.surla_id) {
         config.logger.error('Redirect from Twitter login lacks surla_id parameter', req.query);
-        return res.render(400, 'Invalid response from Twitter');
+        return res.send(400, 'Invalid response from Twitter');
     }
 
     if (!req.cookies.smtw) {
         config.logger.error('Redirect from Twitter login lacks smtw cookie', { id: req.query.surla_id });
-        return res.render(400, 'Invalid response from Twitter');
+        return res.send(400, 'Invalid response from Twitter');
     }
 
     var requestToken;
@@ -186,7 +186,7 @@ exports.getTwitter = function (req, res) {
     }
     catch (err) {
         config.logger.error('Redirect from Twitter login contains invalid smtw cookie', { id: req.query.surla_id });
-        return res.render(400, 'Invalid response from Twitter');
+        return res.send(400, 'Invalid response from Twitter');
     }    
 
     db.get(req.query.surla_id, function (error, entry) {
