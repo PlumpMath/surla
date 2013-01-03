@@ -51,7 +51,7 @@ exports.getFacebook = function (req, res) {
             config.logger.verbose('Redirect from Facebook login with code, exchanging for access token', 
                 { id: req.query.surla_id });
 
-            makeHttpsRequest(options, null, function (error, res, body) {
+            makeHttpsRequest(options, null, function (error, res2, body) {
                 if (error) {
                     config.logger.verbose('Error exchanging Facebook code for access token', { id: req.query.surla_id, error: error });
                     finish(req, res, 'loginfailed', { 
@@ -60,8 +60,8 @@ exports.getFacebook = function (req, res) {
                         error: 'Unable to exchange OAuth code for OAuth access token' 
                     });
                 }
-                else if (res.statusCode !== 200) {
-                    config.logger.verbose('Error exchanging Facebook code for access token', { id: req.query.surla_id, code: res.statusCode });
+                else if (res2.statusCode !== 200) {
+                    config.logger.verbose('Error exchanging Facebook code for access token', { id: req.query.surla_id, code: res2.statusCode });
                     finish(req, res, 'loginfailed', { 
                         provider:'Facebook', 
                         success: false, 
