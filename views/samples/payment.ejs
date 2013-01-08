@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <% include head.common.ejs %>
+    <% include ../head.common.ejs %>
     <script src="/scripts/surlamobi.js"></script>
     <style>
         .sm-icon { display: inline-block; background-size: 100%; width: 100px; height: 100px; text-indent: -999em; text-align: left; }
-        .sm-icon.upload { background: url("images/noun_project_6172.svg"); }
         .sm-center { text-align: center; }
         .sm-qr {
           min-height: 400px;
@@ -16,32 +15,32 @@
 
     <script type="text/javascript">
       $(function () {
-        $('#qr').surlamobi({});
+        $('#qr').surlamobi({
+          interaction: {
+            type: 'Payment',
+          }
+        });
       });
     </script>
 
   </head>
   <body>
     <div class="container">
-      <%include header.common.ejs %>
+      <%include ../header.common.ejs %>
       <div class="row">
         <div class="span8 sm-center">
-          <p><span class="lead">Scan the code to upload a picture from your phone to this web site</span><br>
-          <span class="muted small"><em>(Works with Android phones and Windows Surface only. Support for iPhone and Windows Phone coming soon.)</em></span></p>
+          <p><span class="lead">Scan the code to pay and watch a movie</span><br>
           <div id="qr" class="sm-qr"></div>
         </div>
         <div class="span4">
             <p class="lead">How it works</p>
-            <p>Web site creates a temporary mailbox in the cloud and displays QR code with the mailbox address. 
-            Mary scans the QR code with her phone and opens the mailbox site in the browser.
-            Mary chooses a picture from her phone and uploads it to the mailbox. 
-            Web site fetches the picture from the mailbox.
+            <p>Mary scans QR code and uses her phone to complete the payment. Confirmation is sent back to the browser which can serve premium content. 
             <p class="lead">Applications</p>
             <ul>
-              <li>Picture sharing sites</li>
-              <li>Selling online (craigslist, ebay)</li>
-              <li>Blog authoring sites</li>
-              <li>Content editing sites</li>
+              <li>Payment for premium content on the web or TV</li>
+              <li>Transaction completion for printed ads and mail-in offers</li>
+              <li>Donation campaigns</li>
+              <li>Micro-payments (carrier billing)</li>
             </ul>
         </div>
       </div>   

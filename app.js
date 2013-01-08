@@ -38,6 +38,7 @@ app.get('/upload', routes.upload);
 app.get('/sniffer', routes.sniffer);
 app.get('/remote', routes.remote);
 app.get('/login', routes.login);
+app.get('/payment', routes.payment);
 
 // the relay
 

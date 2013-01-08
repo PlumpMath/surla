@@ -7,20 +7,24 @@ exports.noun = function (req, res) {
 };
 
 exports.upload = function (req, res) {
-    res.render('upload');
+    res.render('samples/upload');
 };
 
 exports.sniffer = function (req, res) {
-    res.render('sniffer');
+    res.render('samples/sniffer');
 };
 
 exports.remote = function (req, res) {
-    res.render('remote');
+    res.render('samples/remote');
 };
 
 exports.login = function (req, res) {
-    res.render('login');
+    res.render('samples/login');
 };
+
+exports.payment = function (req, res) {
+    res.render('samples/payment');
+}
 
 exports.options = function (req, res) {
     res.set('Access-Control-Allow-Origin', '*');

@@ -25,7 +25,7 @@ exports.get = function(req, res) {
 };
 
 exports.get._FileUpload = function (entry, req, res) {
-    res.render('FileUpload', { entry: entry, id: req.params.id });
+    res.render('interactions/upload', { entry: entry, id: req.params.id });
 };
 
 exports.get._Sniffer = function (entry, req, res) {
@@ -34,14 +34,14 @@ exports.get._Sniffer = function (entry, req, res) {
             res.send(error.code, error.message || '');
         }
         else {
-            res.render('thankyou');
+            res.render('interactions/thankyou');
         }
     });
 };
 
 exports.get._Remote = function (entry, req, res) {
     var relayUrl = config.relayBaseUri + req.params.id;
-    res.render('RemoteView', { 
+    res.render('interactions/remote', { 
         relayUrl: relayUrl, 
         holdEvents: entry.params.interaction.holdEvents || false,
         cacheInterval: (typeof entry.params.interaction.cacheInterval === 'undefined' ? 500 : entry.params.interaction.cacheInterval)
@@ -66,7 +66,7 @@ exports.get._Login = function (entry, req, res) {
             res.send(500);
         }
         else {
-            res.render('LoginView', model);
+            res.render('interactions/login', model);
         }
     });    
 }

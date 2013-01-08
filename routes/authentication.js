@@ -23,7 +23,7 @@ exports.getFacebook = function (req, res) {
 
     db.get(req.query.surla_id, function (error, entry) {
         if (error) {
-            return res.render('loginfailed');
+            return res.render('interactions/loginfailed');
         }
 
         if (req.query.error) {
@@ -94,10 +94,10 @@ function finish(req, res, view, message) {
         if (error) {
             config.logger.error('Unable to post ' + message.provider + ' login result to relay', 
                 { id: req.query.surla_id, error: error });
-            res.render('loginfailed');
+            res.render('interactions/loginfailed');
         }
         else {
-            res.render(view);
+            res.render('interactions/' + view);
         }
     });
 }
@@ -193,7 +193,7 @@ exports.getTwitter = function (req, res) {
         if (error) {
             config.logger.error('Redirect from Twitter login contains invalid or expired surla_id cookie', 
                 { id: req.query.surla_id, smtw: req.cookies.smtw });
-            return res.render('loginfailed');
+            return res.render('interactions/loginfailed');
         }
 
         if (!req.query.oauth_verifier) {
