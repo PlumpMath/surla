@@ -1,7 +1,8 @@
 var db = require('../src/db.js')
     , config = require('../src/config.js')
     , fs = require('fs')
-    , authentication = require('./authentication.js');
+    , authentication = require('./authentication.js')
+    , payment = require('./payment.js');
 
 exports.get = function(req, res) {
     db.get(req.params.id, function (error, entry) {
@@ -71,6 +72,29 @@ exports.get._Login = function (entry, req, res) {
     });    
 }
 
+exports.get._Payment = function (entry, req, res) {
+    var model = {
+        enableCarrier: typeof entry.params.interaction.methods.carrier != 'undefined',
+        enableAmazon: typeof entry.params.interaction.methods.amazon != 'undefined',
+        enablePaypal: typeof entry.params.interaction.methods.paypal != 'undefined',
+        enableCard: typeof entry.params.interaction.methods.card != 'undefined',
+        amount: entry.params.interaction.amount,
+        currency: entry.params.interaction.currency,
+        description: entry.params.interaction.description,
+        orderof: entry.params.interaction.orderof
+    };
+
+    db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
+        if (error) {
+            config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
+            res.send(500);
+        }
+        else {
+            res.render('interactions/payment', model);
+        }
+    });    
+}
+
 exports.post = function(req, res) {
     db.get(req.params.id, function (error, entry) {
         if (error) {
@@ -86,7 +110,7 @@ exports.post = function(req, res) {
     });
 };
 
-exports.post._Login = function postFileUpload(entry, req, res) {
+exports.post._Login = function (entry, req, res) {
     if (!req.body.provider) {
         res.send(400, 'Login provider not specified');
     }
@@ -104,7 +128,38 @@ exports.post._Login = function postFileUpload(entry, req, res) {
     }    
 }
 
-exports.post._FileUpload = function postFileUpload(entry, req, res) {
+var paymentViewModel = {
+    'Paypal': 'Paypal',
+    'Amazon': 'Amazon',
+    'Credit/Debit Card': 'Card',
+    'Phone Bill': 'Carrier'
+};
+
+exports.post._Payment = function (entry, req, res) {
+    if (req.body.pretend) {
+        payment.finish(req.params.id, res, 'thankyou', {
+            success: true,
+            method: req.body.method
+        });
+    }
+    else if (!req.body.method) {
+        res.send(400, 'Payment method not specified');
+    }
+    else if (paymentViewModel[req.body.method]) {
+        config.logger.verbose('Received postback from Payment view', 
+            { id: req.params.id, method: req.body.provider });
+
+        var func = payment['post' + paymentViewModel[req.body.method]];
+        if (func) {
+            func(entry, req, res);
+        }
+        else {
+            res.render('interactions/paymentnotsupported', { method: paymentViewModel[req.body.method] });
+        }
+    }    
+}
+
+exports.post._FileUpload = function (entry, req, res) {
     if (!req.files.upfile) {
         res.send(400, 'Upload file not submitted');
     }

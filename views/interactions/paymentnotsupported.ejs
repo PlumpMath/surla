@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>surla.mobi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bridging the gap between web, brick, and mobile">
+    <meta name="author" content="Tomasz Janczuk">
+    <style>
+      body { 
+        text-align: center; 
+      }
+      input { 
+        -webkit-appearance: none;
+        font-size: 1.5em; 
+        width: 12em; 
+      }      
+    </style>    
+  </head>
+  <body>
+    <h1>Payment method not supported</h1>
+    <p>Thank you for using <a href="http://surla.mobi">surla.mobi</a></p>
+    <form method="POST">
+      <input type="submit" name="pretend" value="Pretend it happened"/>
+      <input type="hidden" name="method" value="<%= method %>"/>
+    </form>    
+  </body>
+</html>

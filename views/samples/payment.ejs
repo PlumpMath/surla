@@ -16,10 +16,42 @@
     <script type="text/javascript">
       $(function () {
         $('#qr').surlamobi({
+          maxQueueLength: 2,
           interaction: {
             type: 'Payment',
-          }
+            amount: '5.00',
+            currency: 'USD',
+            description: 'Introduction to node.js on Windows',
+            orderof: 'Origami Movies', 
+            methods: {
+              carrier: {},
+              amazon: {},
+              paypal: {},
+              card: {}
+            }
+          },
+          message: onMessage
         });
+
+        function onMessage(data, context) {
+          for (var i in data) {
+            var message = data[i];
+            if (message) {
+              if (message.hello) {
+                $('#qr').html('<p class="lead">Payment in progress...</p>');
+                $('#actionCall').hide();
+              }
+              else if (!message.success) {
+                $('#qr').html('<p class="lead">Payment failed</p>'); 
+              }
+              else {
+                $('#qr').html('<p class="lead">Payment with <strong>' + message.method + '</strong> '
+                  + 'successful<br>Enjoy your movie!</p><iframe width="400" height="250" src="http://www.youtube.com/embed/O-Sxp22GTEM?autoplay=1"'
+                  + ' frameborder="0" allowfullscreen></iframe>'); 
+              }
+            }
+          }
+        }        
       });
     </script>
 
@@ -29,7 +61,8 @@
       <%include ../header.common.ejs %>
       <div class="row">
         <div class="span8 sm-center">
-          <p><span class="lead">Scan the code to pay and watch a movie</span><br>
+          <p class="lead" id="actionCall">
+            Scan the code to pay $5 and watch<br>Introduction to node.js on Windows</p>
           <div id="qr" class="sm-qr"></div>
         </div>
         <div class="span4">
@@ -37,7 +70,8 @@
             <p>Mary scans QR code and uses her phone to complete the payment. Confirmation is sent back to the browser which can serve premium content. 
             <p class="lead">Applications</p>
             <ul>
-              <li>Payment for premium content on the web or TV</li>
+              <li>Payment for premium TV content</li>
+              <li>Convenient web payment method</li>
               <li>Transaction completion for printed ads and mail-in offers</li>
               <li>Donation campaigns</li>
               <li>Micro-payments (carrier billing)</li>
