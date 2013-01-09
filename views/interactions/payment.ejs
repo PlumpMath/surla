@@ -15,8 +15,11 @@
       body {
         text-align: center;
       }
-      table {
+      table, td {
         text-align: left;
+      }
+      th {
+        text-align: right;
       }
     </style>
   </head>
@@ -28,7 +31,7 @@
         <tr><th>To:</th><td><%= orderof %></td></tr>
         <tr><th>For:</th><td><%= description %></td></tr>
       </table>
-      <h1>Select payment method</h1>
+      <h1>Pay with</h1>
       <% if (enableCarrier) { %>
         <p><input type="submit" name="method" value="Phone Bill"/></p>
       <% } %>
