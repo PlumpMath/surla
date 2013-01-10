@@ -48,6 +48,7 @@
           if (!image) {
             $('#qr').hide();
             $('#image').show();
+            $('#actionCall').text('Use your phone\'s screen to control the picture');
             image = $('#image svg')[0];
             context.left = 0;
             context.top = 0;
@@ -72,7 +73,7 @@
       <%include ../header.common.ejs %>
       <div class="row">
         <div class="span8 sm-center">
-          <p class="lead">Scan the code to control the picture</p>
+          <p class="lead" id="actionCall">Scan the code to control the picture</p>
           <div id="qr" class="sm-qr"></div>
           <div id="image" class="sm-qr" style="display: none">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" 
