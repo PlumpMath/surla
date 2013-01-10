@@ -16,20 +16,7 @@
     <script type="text/javascript">
       $(function () {
         $('#qr').surlamobi({
-          maxQueueLength: 2,
-          interaction: {
-            type: 'Payment',
-            amount: '5.00',
-            currency: 'USD',
-            description: 'Introduction to node.js on Windows',
-            orderof: 'Origami Movies', 
-            methods: {
-              carrier: {},
-              amazon: {},
-              paypal: {},
-              card: {}
-            }
-          },
+          id: '<%= id %>',
           message: onMessage
         });
 

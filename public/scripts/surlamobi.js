@@ -7,16 +7,19 @@
     $.fn.surlamobi = function (options) {
 
         var params = {
-            maxQueueLength: 1,
-            useDataUri: false,
             interaction: {
-                type: 'FileUpload',
                 size: 400
             },
             done: defaultDone,
             message: defaultMessage,
             error: defaultError
         };
+
+        if (!options.id) {
+            params.maxQueueLength = 1;
+            params.useDataUri = false;
+            params.interaction.type = 'FileUpload';
+        }
 
         $.extend(true, params, options);
 
@@ -46,29 +49,36 @@
     }
 
     function createRelayEntry(context) {
-        context.status = 'CreatingRelayEntry';
-        $.ajax({
-            type: 'POST',
-            url: relayUrlBase + '/r',
-            contentType: 'application/json',
-            data: JSON.stringify(context.params),
-            processData: false,
-            success: function(data, statusText, xhr) {
-                if (xhr.status === 201) {
-                    context.relayParams = data;
-                    createQRCode(context);
-                }
-                else {
+        if (context.params.id) {
+            // relay entry was created on the server; use it
+            context.relayParams = { id: context.params.id };
+            createQRCode(context);
+        }
+        else {
+            context.status = 'CreatingRelayEntry';
+            $.ajax({
+                type: 'POST',
+                url: relayUrlBase + '/r',
+                contentType: 'application/json',
+                data: JSON.stringify(context.params),
+                processData: false,
+                success: function(data, statusText, xhr) {
+                    if (xhr.status === 201) {
+                        context.relayParams = data;
+                        createQRCode(context);
+                    }
+                    else {
+                        errorContext(context, 'Unable to create relay entry. HTTP status: ' + xhr.status +
+                            '. Body: ' + xhr.responseText);
+                    }
+                },
+                error: function(xhr, statusText, err) {
                     errorContext(context, 'Unable to create relay entry. HTTP status: ' + xhr.status +
+                        '. Status text: ' + statusText + '. Error: ' + err + 
                         '. Body: ' + xhr.responseText);
                 }
-            },
-            error: function(xhr, statusText, err) {
-                errorContext(context, 'Unable to create relay entry. HTTP status: ' + xhr.status +
-                    '. Status text: ' + statusText + '. Error: ' + err + 
-                    '. Body: ' + xhr.responseText);
-            }
-        });
+            });
+        }
     }
 
     function createQRCode(context) {
@@ -108,12 +118,19 @@
             },
             error: function(xhr, statusText, err) {
                 if (xhr.status === 410) {
-                    // entry expired at the relay without interaction finishing; create new entry
+                    // entry expired at the relay without interaction finishing
                     delete context.from;
                     delete context.status;
                     delete context.pollErrorCount;
                     delete context.relayParams;
-                    createRelayEntry(context);
+                    if (context.params.id) {
+                        // relay was created on the server; error the context 
+                        errorContext(context, 'Relay entry expired. HTTP status: 410');
+                    }
+                    else {
+                        // entry was created on the client; create a new one
+                        createRelayEntry(context);
+                    }
                 }
                 else if (xhr.status === 416) {
                     // relay entry has been closed - interaction has successfuly completed
