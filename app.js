@@ -39,6 +39,7 @@ app.get('/sniffer', routes.sniffer);
 app.get('/remote', routes.remote);
 app.get('/login', routes.login);
 app.get('/payment', routes.payment);
+app.get('/chat', routes.chat);
 
 // the relay
 

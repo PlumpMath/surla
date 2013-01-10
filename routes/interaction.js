@@ -25,6 +25,10 @@ exports.get = function(req, res) {
     });
 };
 
+exports.get._Chat = function (entry, req, res) {
+    res.render('interactions/chat', { relayUrl: config.relayBaseUri + req.params.id });
+};
+
 exports.get._FileUpload = function (entry, req, res) {
     db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
         if (error) {

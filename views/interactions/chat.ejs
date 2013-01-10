@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>surla.mobi chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bridging the gap between web, brick, and mobile">
+    <meta name="author" content="Tomasz Janczuk">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <style>
+      body { 
+        width: 100%;
+      }
+      input {
+        -webkit-appearance: none;
+        font-size: 1.5em; 
+      }
+      #text {
+        width: 90%;
+      }
+    </style>
+    <script type="text/javascript">
+      var relayUrl = '<%= relayUrl %>';
+
+      $(function () {
+        $('#name').val('Mary' + Math.floor(Math.random() * 1000));
+        var sent = 0;
+        $('#text').keypress(function(event){
+          var keycode = (event.keyCode || event.which);
+          if (keycode == '13') {
+            var message = {
+              name: $('#name').val(),
+              text: $('#text').val()
+            };
+
+            $('#text').val('');
+            $('#status').text('Messages sent: ' + (++sent));
+
+            $.ajax({
+                type: 'POST',
+                url: relayUrl,
+                contentType: 'application/json',
+                data: JSON.stringify(message),
+                processData: false,
+                success: function(data, statusText, xhr) {
+                  if (xhr.status !== 200) {
+                    $('#status').text('Communication error: ' + xhr.status);
+                  }
+                },
+                error: function(xhr, statusText, err) {
+                  $('#status').text('Communication error: ' 
+                    + (xhr.status > 0 ? xhr.status : 'unable to connect to surla.mobi relay'));
+                }
+            });  
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Chat</h1>
+    <p>Your name</p>
+    <input id="name" type="text" />
+    <p>Message</p>
+    <input id="text" type="text" maxlength="140" placeholder="Type message and press enter..." />
+    <p id="status">Messages sent: 0</p>
+  </body>
+</html>
