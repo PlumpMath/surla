@@ -17,6 +17,7 @@
     <script type="text/javascript">
       $(function () {
         $('#qr').surlamobi({
+          maxQueueLength: 2,
           interaction: {
             type: 'FileUpload'
           },
@@ -24,14 +25,24 @@
         });
 
         function onMessage(data, context) {
-          if (typeof data[0].uri === 'string' 
-              && typeof data[0].contentType === 'string'
-              && data[0].contentType.match(/^image/)) {
-              $('#qr').html('<img src="' + data[0].uri + '" width=400 height=400 />');
+          for (var i in data) {
+            var message = data[i];
+            if (message) {
+              if (message.hello) {
+                $('#qr').html('<p class="lead">File upload in progress...</p>');
+                $('#actionCall').hide();
+              }
+              else if (typeof message.uri === 'string' 
+                  && typeof message.contentType === 'string'
+                  && message.contentType.match(/^image/)) {
+                  $('#qr').html('<p class="lead">Thank you for uploading an image!</p>'
+                    + '<p><img src="' + message.uri + '" width=400 height=400 /></p>');
+              }
+              else {
+                  $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
+              }          
+            }
           }
-          else {
-              $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
-          }          
         }
       });
     </script>
@@ -42,7 +53,7 @@
       <%include ../header.common.ejs %>
       <div class="row">
         <div class="span8 sm-center">
-          <p><span class="lead">Scan the code to upload a picture from your phone to this web site</span><br>
+          <p id="actionCall"><span class="lead">Scan the code to upload a picture from your phone to this web site</span><br>
           <span class="muted small"><em>(Works with Android phones and Windows Surface only. Support for iPhone and Windows Phone coming soon.)</em></span></p>
           <div id="qr" class="sm-qr"></div>
         </div>

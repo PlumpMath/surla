@@ -26,7 +26,15 @@ exports.get = function(req, res) {
 };
 
 exports.get._FileUpload = function (entry, req, res) {
-    res.render('interactions/upload', { entry: entry, id: req.params.id });
+    db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
+        if (error) {
+            config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
+            res.send(500);
+        }
+        else {
+            res.render('interactions/upload', { entry: entry, id: req.params.id });
+        }
+    });
 };
 
 exports.get._Sniffer = function (entry, req, res) {
