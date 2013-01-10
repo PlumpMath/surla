@@ -16,7 +16,23 @@
 
     <script type="text/javascript">
       $(function () {
-        $('#qr').surlamobi({});
+        $('#qr').surlamobi({
+          interaction: {
+            type: 'FileUpload'
+          },
+          message: onMessage
+        });
+
+        function onMessage(data, context) {
+          if (typeof data[0].uri === 'string' 
+              && typeof data[0].contentType === 'string'
+              && data[0].contentType.match(/^image/)) {
+              $('#qr').html('<img src="' + data[0].uri + '" width=400 height=400 />');
+          }
+          else {
+              $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
+          }          
+        }
       });
     </script>
 

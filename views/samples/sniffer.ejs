@@ -17,12 +17,16 @@
       $(function () {
         $('#qr').surlamobi({
           interaction: {
-            type: 'Sniffer',
+            type: 'Sniffer'
           },
-          done: function () {
-            $('#qr').css('text-align', 'left');
-          }
+          message: onMessage
         });
+
+        function onMessage(data, context) {
+          $('#qr')
+            .html('<pre>' + $('<div/>').text(JSON.stringify(data[0], null, 2)).html() + '</pre>')
+            .css('text-align', 'left');
+        }        
       });
     </script>
 

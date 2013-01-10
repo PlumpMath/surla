@@ -18,7 +18,6 @@
         if (!options.id) {
             params.maxQueueLength = 1;
             params.useDataUri = false;
-            params.interaction.type = 'FileUpload';
         }
 
         $.extend(true, params, options);
@@ -168,28 +167,8 @@
         }
     }
 
-    var defaultMessageHandlers = {}
-
-    defaultMessageHandlers.handleFileUploadMessage = function (data, context) {
-        if (typeof data[0].uri === 'string' 
-            && typeof data[0].contentType === 'string'
-            && data[0].contentType.match(/^image/)) {
-            context.target.html('<img src="' + data[0].uri + 
-                '" width=' + context.params.interaction.size + ' height=' + context.params.interaction.size +' />');        
-        }
-        else {
-            errorContext(context, 'The default FileUpload interaction requires that the upload file is an image. ' +
-                'Content-Type: ' + data[0].contentType);
-        }
-    };
-
-    defaultMessageHandlers.handleSnifferMessage = function (data, context) {
-        context.target.html('<pre>' + $('<div/>').text(JSON.stringify(data[0], null, 2)).html() + '</pre>');
-    };
-
     function defaultMessage(data, context) {
-        var func = defaultMessageHandlers['handle' + context.params.interaction.type + 'Message'] || function () {};
-        func(data, context);
+        // empty
     }
 
     function defaultError(context) {

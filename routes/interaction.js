@@ -168,7 +168,7 @@ exports.post._FileUpload = function (entry, req, res) {
             { id: req.params.id, size: req.files.upfile.size, type: req.files.upfile.type, name: req.files.upfile.name });
 
         if (req.files.upfile.size === 0) {
-            res.render('FileUpload', { entry: entry, id: req.params.id });
+            res.render('interactions/upload', { entry: entry, id: req.params.id });
         }
         else {
             fs.readFile(req.files.upfile.path, function (error, data) {
@@ -182,7 +182,7 @@ exports.post._FileUpload = function (entry, req, res) {
                             res.send(error.code, error.message || '');
                         }
                         else {
-                            res.render('thankyou');
+                            res.render('interactions/thankyou');
                         }
                     });
                 }
