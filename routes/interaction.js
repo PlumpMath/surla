@@ -42,7 +42,7 @@ exports.get._FileUpload = function (entry, req, res) {
 };
 
 exports.get._Sniffer = function (entry, req, res) {
-    db.post(req.params.id, 'application/json', { headers: req.headers || {} }, function (error) {
+    db.post(req.params.id, 'application/json', [ { headers: req.headers || {} }, null ], function (error) {
         if (error) {
             res.send(error.code, error.message || '');
         }
@@ -159,7 +159,7 @@ exports.post._Payment = function (entry, req, res) {
     }
     else if (paymentViewModel[req.body.method]) {
         config.logger.verbose('Received postback from Payment view', 
-            { id: req.params.id, method: req.body.provider });
+            { id: req.params.id, method: req.body.method });
 
         var func = payment['post' + paymentViewModel[req.body.method]];
         if (func) {
@@ -194,7 +194,14 @@ exports.post._FileUpload = function (entry, req, res) {
                             res.send(error.code, error.message || '');
                         }
                         else {
-                            res.render('interactions/thankyou');
+                            db.post(req.params.id, 'application/json', null, function (error) {
+                                if (error) {
+                                    res.send(error.code, error.message || '');
+                                }
+                                else {
+                                    res.render('interactions/thankyou');
+                                }
+                            });
                         }
                     });
                 }

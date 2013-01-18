@@ -68,7 +68,6 @@ exports.chat = function (req, res) {
 
 exports.payment = function (req, res) {
     var payment = {
-      maxQueueLength: 2,
       interaction: {
         type: 'Payment',
         amount: '5.00',

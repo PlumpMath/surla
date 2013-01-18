@@ -43,7 +43,6 @@ exports.create = function (params, ttl, callback) {
     }
 
     var defaultParams = {
-        maxQueueLength: 1,
         useDataUri: false,
         interaction: null
     };
@@ -187,7 +186,14 @@ exports.post = function (id, contentType, body, callback) {
             }
 
             config.logger.silly('Posting application/json message', { id: id, message: body });
-            entry.queue.push(body);
+            if (Array.isArray(body)) {
+                body.forEach(function (item) { 
+                    entry.queue.push(item);
+                });
+            }
+            else {
+                entry.queue.push(body);
+            }
         }
         else if (entry.params.useDataUri) {
             // add non-JSON content to the queue as data URI
@@ -223,11 +229,6 @@ exports.post = function (id, contentType, body, callback) {
 
         // reset inactivity timeout
         setInactivityTimeout(entry);
-
-        if (entry.queue.length == entry.params.maxQueueLength && body !== null) {
-            // add sentinel value to the queue indicating the queue is closed
-            entry.queue.push(null);
-        }
 
         config.logger.verbose('Posted relay message', 
             { id: id, queueLength: entry.queue.length, queueClosed: isQueueClosed(entry) });

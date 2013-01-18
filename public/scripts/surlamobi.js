@@ -16,7 +16,6 @@
         };
 
         if (!options.id) {
-            params.maxQueueLength = 1;
             params.useDataUri = false;
         }
 
