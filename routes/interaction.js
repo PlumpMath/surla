@@ -26,7 +26,9 @@ exports.get = function(req, res) {
 };
 
 exports.get._Chat = function (entry, req, res) {
-    res.render('interactions/chat', { relayUrl: config.relayBaseUri + req.params.id });
+    res.render('interactions/chat', { 
+        relayUrl: config.relayBaseUri + req.params.id + '/?key=' + encodeURIComponent(entry.params.postKey || 'none')
+    });
 };
 
 exports.get._FileUpload = function (entry, req, res) {
@@ -53,7 +55,7 @@ exports.get._Sniffer = function (entry, req, res) {
 };
 
 exports.get._Remote = function (entry, req, res) {
-    var relayUrl = config.relayBaseUri + req.params.id;
+    var relayUrl = config.relayBaseUri + req.params.id + '/?key=' + encodeURIComponent(entry.params.postKey || 'none');
     res.render('interactions/remote', { 
         relayUrl: relayUrl, 
         holdEvents: entry.params.interaction.holdEvents || false,

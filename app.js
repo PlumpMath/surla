@@ -6,7 +6,8 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , surlaware = require('./src/surlaware.js')
-  , authentication = require('./routes/authentication.js');
+  , authentication = require('./routes/authentication.js')
+  , security = require('./routes/security.js');
 
 var app = express();
 
@@ -43,12 +44,13 @@ app.get('/chat', routes.chat);
 
 // the relay
 
-app.post('/r', relay.create);
-app.get('/r/:id', relay.poll); // assumes :from === 0
-app.get('/r/:id/stats', relay.stats); 
-app.get('/r/:id/:position/attachment', relay.getAttachment);
-app.get('/r/:id/:from', relay.poll);
-app.post('/r/:id', relay.post);
+app.post('/r', relay.addCommonResponseHeaders, relay.create); // security built into route handler
+app.all('/r/*', relay.addCommonResponseHeaders);
+app.get('/r/:id', security.createRelaySecurity('poll'), relay.poll); // assumes :from === 0
+app.get('/r/:id/stats', security.createRelaySecurity('get'), relay.stats); 
+app.get('/r/:id/:position/attachment', security.createRelaySecurity('poll'), relay.getAttachment);
+app.get('/r/:id/:from', security.createRelaySecurity('poll'), relay.poll);
+app.post('/r/:id', security.createRelaySecurity('post'), relay.post);
 
 // the interaction views
 

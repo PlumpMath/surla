@@ -26,5 +26,11 @@
             "queue": [],
             "attachments": {}
         }
-    ]
+    ],
+
+    "accounts": {   
+        "surlamobi": {
+            "keys": [ "free" ]
+        }
+    }
 }

@@ -12,11 +12,14 @@
             },
             done: defaultDone,
             message: defaultMessage,
-            error: defaultError
+            error: defaultError,
+            created: defaultCreated
         };
 
         if (!options.id) {
             params.useDataUri = false;
+            params.accountId = 'surlamobi';
+            params.key = 'free';
         }
 
         $.extend(true, params, options);
@@ -35,6 +38,7 @@
             moveProperty(context.params, context, 'done');
             moveProperty(context.params, context, 'message');
             moveProperty(context.params, context, 'error');
+            moveProperty(context.params, context, 'created');
             $this.data('surlamobi', context);
             createRelayEntry(context);
         });
@@ -56,13 +60,14 @@
             context.status = 'CreatingRelayEntry';
             $.ajax({
                 type: 'POST',
-                url: relayUrlBase + '/r',
+                url: '/r',
                 contentType: 'application/json',
                 data: JSON.stringify(context.params),
                 processData: false,
                 success: function(data, statusText, xhr) {
                     if (xhr.status === 201) {
                         context.relayParams = data;
+                        context.created(context);
                         createQRCode(context);
                     }
                     else {
@@ -95,9 +100,14 @@
     function startPolling(context) {
         context.status = 'Polling';
         context.from = context.from || 0;
+        var url = relayUrlBase + '/r/' + context.relayParams.id + '/' + context.from;
+        if (context.relayParams.pollKey) {
+            url += '?key=' + encodeURIComponent(context.relayParams.pollKey);
+        }
+
         $.ajax({
             type: 'GET',
-            url: relayUrlBase + '/r/' + context.relayParams.id + '/' + context.from,
+            url: url,
             success: function(data, statusText, xhr) {
                 // successful response; data length may be zero if there are no new messages
                 context.from += data.length;
@@ -156,6 +166,10 @@
                 }
             }
        });                
+    }
+
+    function defaultCreated(context) {
+        // empty
     }
 
     function defaultDone(context) {

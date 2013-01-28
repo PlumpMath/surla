@@ -44,7 +44,13 @@ exports.create = function (params, ttl, callback) {
 
     var defaultParams = {
         useDataUri: false,
-        interaction: null
+        interaction: null,
+        accountId: null,
+        key: null,
+        disablePollAuth: null,
+        disablePostAuth: null,
+        pollKey: null,
+        postKey: null
     };
 
     for (var i in params) {
@@ -53,6 +59,12 @@ exports.create = function (params, ttl, callback) {
         }
 
         defaultParams[i] = params[i];
+    }
+
+    for (var i in defaultParams) {
+        if (defaultParams[i] === null) {
+            delete defaultParams[i];
+        }
     }
 
     defaultParams.ttl = ttl;
@@ -209,7 +221,7 @@ exports.post = function (id, contentType, body, callback) {
             }
         }
         else {
-            // add non-JSON content to the queue as an attachment
+            // add non-JSON content to the queue as an attachment; include pollKey in the URL
 
             entry.attachments['' + entry.queue.length] = {
                 contentType: contentType,
@@ -218,8 +230,12 @@ exports.post = function (id, contentType, body, callback) {
 
             var message = { 
                 contentType: contentType,
-                uri: config.relayBaseUri + id + '/' + entry.queue.length + '/attachment' 
+                uri: config.relayBaseUri + id + '/' + entry.queue.length + '/attachment'
             };
+
+            if (entry.params.pollKey) {
+                message.uri += '/?key=' + encodeURIComponent(entry.params.pollKey);
+            }
 
             entry.queue.push(message);
 
@@ -246,5 +262,16 @@ exports.post = function (id, contentType, body, callback) {
         }
 
         callback();
+    }
+};
+
+exports.getAccount = function (accountId, callback) {
+    var account = config.accounts[accountId];
+    if (!account) {
+        config.logger.warn('Cannot retrieve account', { accountId: accountId });
+        callback({ code: 404, message: 'Account not found' });
+    }
+    else {
+        callback(null, account);
     }
 };

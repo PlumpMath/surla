@@ -68,6 +68,9 @@ exports.chat = function (req, res) {
 
 exports.payment = function (req, res) {
     var payment = {
+      accountId: 'surlamobi',
+      key: 'free',
+      disablePollAuth: true,
       interaction: {
         type: 'Payment',
         amount: '5.00',
