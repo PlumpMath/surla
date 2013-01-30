@@ -10,6 +10,7 @@
           height: auto !important;
           height: 350px;
         }        
+        img { -ms-interpolation-mode: bicubic; }
     </style>
 
     <script type="text/javascript">
@@ -36,7 +37,7 @@
                   && typeof message.contentType === 'string'
                   && message.contentType.match(/^image/)) {
                   $('#qr').append('<a href="' + message.uri + '" target=_blank>'
-                      + '<img src="' + message.uri + '" width=200 height=200 /></a>');
+                      + '<img src="' + message.uri + '" width=350 height=350 /></a>');
               }
               else {
                   $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
