@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../head.common.ejs %>
+    <script src="/scripts/surlamobi.js"></script>
+    <style>
+        .sm-center { text-align: center; }
+        .sm-qr {
+          min-height: 400px;
+          height: auto !important;
+          height: 400px;
+        }        
+    </style>
+
+    <script type="text/javascript">
+      $(function () {
+        $('#qr').surlamobi({
+          interaction: {
+            type: 'FileUpload'
+          },
+          message: onMessage,
+          done: onDone,
+          error: function (context) {
+            alert(JSON.stringify(context, null, 2));
+          }
+        });
+
+        function onMessage(data, context) {
+          for (var i in data) {
+            var message = data[i];
+            if (message) {
+              if (message.hello) {
+                $('#actionCall').text('File upload in progress...');
+                $('#qr').text('');
+              }
+              else if (typeof message.uri === 'string' 
+                  && typeof message.contentType === 'string'
+                  && message.contentType.match(/^image/)) {
+                  $('#qr').append('<a href="' + message.uri + '" target=_blank>'
+                      + '<img src="' + message.uri + '" width=200 height=200 /></a>');
+              }
+              else {
+                  $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
+              }          
+            }
+          }
+        }
+
+        function onDone() {
+          $('#actionCall').text('Thank you for uploading your pictures.')
+        }
+      });
+    </script>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span8 sm-center">
+          <p id="actionCall" class="lead">Scan the code to upload a pictures from your phone to this web site</p>
+          <div id="qr" class="sm-qr"></div>
+        </div>
+        <div class="span4">
+            <p class="lead">How it works</p>
+            <p>Mary scans the QR code with her phone and uploads a picture to surla.mobi. The picture is relayed back to the browser. 
+            <p class="lead">Applications</p>
+            <ul>
+              <li>Picture sharing sites</li>
+              <li>Selling online (craigslist, ebay)</li>
+              <li>Blog authoring sites</li>
+              <li>Content editing sites</li>
+            </ul>
+        </div>
+      </div>   
+
+    </div> <!-- /container -->
+  </body>
+</html>

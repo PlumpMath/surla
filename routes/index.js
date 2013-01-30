@@ -50,6 +50,10 @@ exports.upload = function (req, res) {
     res.render('samples/upload');
 };
 
+exports.uploadLiveWriter = function (req, res) {
+    res.render('samples/livewriter.upload.ejs');
+};
+
 exports.sniffer = function (req, res) {
     res.render('samples/sniffer');
 };

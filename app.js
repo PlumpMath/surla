@@ -36,6 +36,7 @@ app.options('*', routes.options);
 app.get('/', routes.index);
 app.get('/noun', routes.noun);
 app.get('/upload', routes.upload);
+app.get('/upload/livewriter', routes.uploadLiveWriter);
 app.get('/sniffer', routes.sniffer);
 app.get('/remote', routes.remote);
 app.get('/login', routes.login);
