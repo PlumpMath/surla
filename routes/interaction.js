@@ -174,7 +174,11 @@ exports.post._Payment = function (entry, req, res) {
 }
 
 exports.post._FileUpload = function (entry, req, res) {
-    console.log(req.files);
+    if (req.files.upfile && req.files.upfile.size > 0) {
+        // normalize single and multiple file upload to array representation 
+        req.files.upfile = [ req.files.upfile ];
+    }
+
     if (!Array.isArray(req.files.upfile) || req.files.upfile.length == 0) {
         res.send(400, 'Upload file not submitted');
     }
@@ -188,7 +192,7 @@ exports.post._FileUpload = function (entry, req, res) {
         else {
             var count = 0;
             var firstError;
-            
+
             function tryFinish(error) {
                 firstError = firstError || error;
                 if (++count === req.files.upfile.length) {
