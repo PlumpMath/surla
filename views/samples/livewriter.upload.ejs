@@ -19,7 +19,10 @@
             type: 'FileUpload'
           },
           message: onMessage,
-          done: onDone
+          done: onDone,
+          created: function (context) {
+            alert(JSON.stringify(context.relayParams, null, 2));
+          }
           // error: function (context) {
           //   alert(JSON.stringify(context, null, 2));
           // }
