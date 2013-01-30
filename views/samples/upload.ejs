@@ -12,6 +12,7 @@
           height: auto !important;
           height: 400px;
         }        
+        img { padding: 3px; }
     </style>
 
     <script type="text/javascript">
@@ -35,7 +36,8 @@
               else if (typeof message.uri === 'string' 
                   && typeof message.contentType === 'string'
                   && message.contentType.match(/^image/)) {
-                  $('#qr').append('<p><img src="' + message.uri + '" width=400 height=400 /></p>');
+                  $('#qr').append('<a href="' + message.uri + '" target=_blank>'
+                      + '<img src="' + message.uri + '" width=200 height=200 /></a>');
               }
               else {
                   $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
