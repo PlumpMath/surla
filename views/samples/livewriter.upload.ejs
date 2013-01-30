@@ -30,7 +30,7 @@
             var message = data[i];
             if (message) {
               if (message.hello) {
-                $('#actionCall').text('Now picture on your phone...');
+                $('#actionCall').text('Now choose a picture on your phone...');
                 $('#qr').text('');
               }
               else if (typeof message.uri === 'string' 
@@ -82,7 +82,7 @@
 
       <footer>
         <div class="row">
-            <div class="span5">
+            <div class="span5 offset1">
                 &copy; <a href="http://tomasz.janczuk.org" target=_blank>Tomasz Janczuk</a> 2013
             </div>
         </div>
