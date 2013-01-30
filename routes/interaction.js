@@ -180,7 +180,8 @@ exports.post._FileUpload = function (entry, req, res) {
     }
 
     if (!Array.isArray(req.files.upfile) || req.files.upfile.length == 0) {
-        res.send(400, 'Upload file not submitted');
+        // no files uploaded - consider this end of interaction, close the queue
+        finishSendingFiles();
     }
     else {
         config.logger.verbose('Received postback from FileUpload view', 
@@ -200,14 +201,8 @@ exports.post._FileUpload = function (entry, req, res) {
                         res.send(error.code, error.message || '');
                     }
                     else {
-                        db.post(req.params.id, 'application/json', null, function (error) {
-                            if (error) {
-                                res.send(error.code, error.message || '');
-                            }
-                            else {
-                                res.render('interactions/thankyou');
-                            }
-                        });
+                        // give the user opportunity to upload more files
+                        res.render('interactions/upload', { entry: entry, id: req.params.id });
                     }
                 }
             }
@@ -224,6 +219,17 @@ exports.post._FileUpload = function (entry, req, res) {
                 });
             });
         }        
+    }
+
+    function finishSendingFiles() {
+        db.post(req.params.id, 'application/json', null, function (error) {
+            if (error) {
+                res.send(error.code, error.message || '');
+            }
+            else {
+                res.render('interactions/thankyou');
+            }
+        });        
     }    
 }
 
