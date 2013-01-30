@@ -6,9 +6,9 @@
     <style>
         .sm-center { text-align: center; }
         .sm-qr {
-          min-height: 200px;
+          min-height: 350px;
           height: auto !important;
-          height: 200px;
+          height: 350px;
         }        
     </style>
 
@@ -17,7 +17,7 @@
         
         $('#qr').surlamobi({
           interaction: {
-            size: 200,
+            size: 350,
             type: 'FileUpload'
           },
           message: onMessage,
@@ -64,14 +64,16 @@
             <p>You must have a QR code reader app installed on your phone. Search for <em>QR reader</em> in 
             the app store, or use the following recommendations:</p>
             <ol>
-              <li><strong>iPhone</strong>: <em>QR Reader for iPhone</em> by TapMedia Ltd.</li>
+              <li><strong>iPhone</strong>: <a href="https://itunes.apple.com/us/app/qr-reader-for-iphone/id368494609?mt=8" target=_blank>
+                QR Reader for iPhone</a> by TapMedia Ltd.</li>
               <li><strong>Android</strong>: <a href="https://play.google.com/store/apps/details?id=me.scan.android.client" target=_blank>
-                <em>Scan</em></a> by Scan Inc.</li>
-              <li><strong>Windows Phone</strong>: unfortunately Windows Phone is not supported by this plugin. While there
-              are many QR scanning apps for Windows Phone, the mobile Internet Explorer currently does not support uploading files. 
+                Scan</a> by Scan Inc.</li>
+              <li><strong>Windows Phone</strong>: unfortunately Windows Phone is not supported by this plugin. If you care, please 
+              <a href="http://windowsphone.uservoice.com/forums/101801-feature-suggestions/suggestions/2343183-upload-files-via-browser" target=_blank>
+              vote up this feature request</a> for a missing file upload feature in the mobile Internet Explorer.  
             </ol>
             <p>After scanning the QR code your phone will open a mobile browser and navigate to a http://surla.mobi website 
-            for the final step. 
+            for the final picture selection and upload step. 
         </div>
       </div>   
 
