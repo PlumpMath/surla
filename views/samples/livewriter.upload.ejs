@@ -6,9 +6,9 @@
     <style>
         .sm-center { text-align: center; }
         .sm-qr {
-          min-height: 400px;
+          min-height: 200px;
           height: auto !important;
-          height: 400px;
+          height: 200px;
         }        
     </style>
 
@@ -17,6 +17,7 @@
         
         $('#qr').surlamobi({
           interaction: {
+            size: 200,
             type: 'FileUpload'
           },
           message: onMessage,
@@ -54,7 +55,7 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="span4 sm-center">
+        <div class="span5 sm-center">
           <p id="actionCall" class="lead">Scan the code to upload a picture from your phone</p>
           <div id="qr" class="sm-qr"></div>
         </div>
@@ -64,12 +65,13 @@
             the app store, or use the following recommendations:</p>
             <ol>
               <li><strong>iPhone</strong>: <em>QR Reader for iPhone</em> by TapMedia Ltd.</li>
-              <li><strong>Android</strong>: <em>Scan</em> by Scan Inc.</li>
+              <li><strong>Android</strong>: <a href="https://play.google.com/store/apps/details?id=me.scan.android.client" target=_blank>
+                <em>Scan</em></a> by Scan Inc.</li>
               <li><strong>Windows Phone</strong>: unfortunately Windows Phone is not supported by this plugin. While there
-              are many QR scanning apps for Windows Phone, the mobile Internet Explorer does not support uploading files. 
+              are many QR scanning apps for Windows Phone, the mobile Internet Explorer currently does not support uploading files. 
             </ol>
             <p>After scanning the QR code your phone will open a mobile browser and navigate to a http://surla.mobi website 
-            with further instructions. 
+            for the final step. 
         </div>
       </div>   
 
@@ -77,8 +79,8 @@
 
       <footer>
         <div class="row">
-            <div class="span2">
-                &copy; <a href="http://tomasz.janczuk.org" target=_blank>Tomasz Janczuk</a> 2012
+            <div class="span5">
+                &copy; <a href="http://tomasz.janczuk.org" target=_blank>Tomasz Janczuk</a> 2013
             </div>
         </div>
       </footer>       
