@@ -174,7 +174,8 @@ exports.post._Payment = function (entry, req, res) {
 }
 
 exports.post._FileUpload = function (entry, req, res) {
-    if (!req.files.upfile) {
+    console.log(req.files);
+    if (!Array.isArray(req.files.upfile) || req.files.upfile.length == 0) {
         res.send(400, 'Upload file not submitted');
     }
     else {
@@ -185,28 +186,38 @@ exports.post._FileUpload = function (entry, req, res) {
             res.render('interactions/upload', { entry: entry, id: req.params.id });
         }
         else {
-            fs.readFile(req.files.upfile.path, function (error, data) {
-                if (error) {
-                    config.logger.error('Error reading uploaded file', { id: req.params.id, path: req.files.upfile.path });
-                    res.send(500, 'Error processing uploaded file');
+            var count = 0;
+            var firstError;
+            
+            function tryFinish(error) {
+                firstError = firstError || error;
+                if (++count === req.files.upfile.length) {
+                    if (firstError) {
+                        res.send(error.code, error.message || '');
+                    }
+                    else {
+                        db.post(req.params.id, 'application/json', null, function (error) {
+                            if (error) {
+                                res.send(error.code, error.message || '');
+                            }
+                            else {
+                                res.render('interactions/thankyou');
+                            }
+                        });
+                    }
                 }
-                else {
-                    db.post(req.params.id, req.files.upfile.type, data, function (error) {
-                        if (error) {
-                            res.send(error.code, error.message || '');
-                        }
-                        else {
-                            db.post(req.params.id, 'application/json', null, function (error) {
-                                if (error) {
-                                    res.send(error.code, error.message || '');
-                                }
-                                else {
-                                    res.render('interactions/thankyou');
-                                }
-                            });
-                        }
-                    });
-                }
+            }
+
+            req.files.upfile.forEach(function (file) {
+                fs.readFile(file.path, function (error, data) {
+                    if (error) {
+                        config.logger.error('Error reading uploaded file', { id: req.params.id, path: file.path });
+                        tryFinish({ code: 500, message: 'Error processing uploaded file'});
+                    }
+                    else {
+                        db.post(req.params.id, file.type, data, tryFinish);
+                    }
+                });
             });
         }        
     }    

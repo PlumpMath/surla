@@ -20,7 +20,8 @@
           interaction: {
             type: 'FileUpload'
           },
-          message: onMessage
+          message: onMessage,
+          done: onDone
         });
 
         function onMessage(data, context) {
@@ -28,20 +29,23 @@
             var message = data[i];
             if (message) {
               if (message.hello) {
-                $('#qr').html('<p class="lead">File upload in progress...</p>');
-                $('#actionCall').hide();
+                $('#actionCall').text('File upload in progress...');
+                $('#qr').text('');
               }
               else if (typeof message.uri === 'string' 
                   && typeof message.contentType === 'string'
                   && message.contentType.match(/^image/)) {
-                  $('#qr').html('<p class="lead">Thank you for uploading an image!</p>'
-                    + '<p><img src="' + message.uri + '" width=400 height=400 /></p>');
+                  $('#qr').append('<p><img src="' + message.uri + '" width=400 height=400 /></p>');
               }
               else {
                   $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
               }          
             }
           }
+        }
+
+        function onDone() {
+          $('#actionCall').text('Thank you for uploading your pictures.')
         }
       });
     </script>
@@ -52,8 +56,7 @@
       <%include ../header.common.ejs %>
       <div class="row">
         <div class="span8 sm-center">
-          <p id="actionCall"><span class="lead">Scan the code to upload a picture from your phone to this web site</span><br>
-          <span class="muted small"><em>(Works with Android phones and Windows Surface only. Support for iPhone and Windows Phone coming soon.)</em></span></p>
+          <p id="actionCall" class="lead">Scan the code to upload a pictures from your phone to this web site</p>
           <div id="qr" class="sm-qr"></div>
         </div>
         <div class="span4">
