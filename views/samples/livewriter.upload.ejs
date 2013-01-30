@@ -19,10 +19,10 @@
             type: 'FileUpload'
           },
           message: onMessage,
-          done: onDone,
-          error: function (context) {
-            alert(JSON.stringify(context, null, 2));
-          }
+          done: onDone
+          // error: function (context) {
+          //   alert(JSON.stringify(context, null, 2));
+          // }
         });
 
         function onMessage(data, context) {
