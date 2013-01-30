@@ -15,20 +15,12 @@
     <script type="text/javascript">
       $(function () {
         
-        $.support.cors = true; 
-
         $('#qr').surlamobi({
           interaction: {
             type: 'FileUpload'
           },
           message: onMessage,
-          done: onDone,
-          created: function (context) {
-            alert(JSON.stringify(context.relayParams, null, 2));
-          }
-          // error: function (context) {
-          //   alert(JSON.stringify(context, null, 2));
-          // }
+          done: onDone
         });
 
         function onMessage(data, context) {
@@ -36,7 +28,7 @@
             var message = data[i];
             if (message) {
               if (message.hello) {
-                $('#actionCall').text('File upload in progress...');
+                $('#actionCall').text('Now picture on your phone...');
                 $('#qr').text('');
               }
               else if (typeof message.uri === 'string' 
@@ -62,22 +54,35 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="span8 sm-center">
-          <p id="actionCall" class="lead">Scan the code to upload a pictures from your phone to this web site</p>
+        <div class="span4 sm-center">
+          <p id="actionCall" class="lead">Scan the code to upload a picture from your phone</p>
           <div id="qr" class="sm-qr"></div>
         </div>
         <div class="span4">
-            <p class="lead">How it works</p>
-            <p>Mary scans the QR code with her phone and uploads a picture to surla.mobi. The picture is relayed back to the browser. 
-            <p class="lead">Applications</p>
-            <ul>
-              <li>Picture sharing sites</li>
-              <li>Selling online (craigslist, ebay)</li>
-              <li>Blog authoring sites</li>
-              <li>Content editing sites</li>
-            </ul>
+            <p class="lead">Need help scanning?</p>
+            <p>You must have a QR code reader app installed on your phone. Search for <em>QR reader</em> in 
+            the app store, or use the following recommendations:</p>
+            <ol>
+              <li><strong>iPhone</strong>: <em>QR Reader for iPhone</em> by TapMedia Ltd.</li>
+              <li><strong>Android</strong>: <em>Scan</em> by Scan Inc.</li>
+              <li><strong>Windows Phone</strong>: unfortunately Windows Phone is not supported by this plugin. While there
+              are many QR scanning apps for Windows Phone, the mobile Internet Explorer does not support uploading files. 
+            </ol>
+            <p>After scanning the QR code your phone will open a mobile browser and navigate to a http://surla.mobi website 
+            with further instructions. 
         </div>
       </div>   
+
+      <hr>
+
+      <footer>
+        <div class="row">
+            <div class="span2">
+                &copy; <a href="http://tomasz.janczuk.org" target=_blank>Tomasz Janczuk</a> 2012
+            </div>
+        </div>
+      </footer>       
+
 
     </div> <!-- /container -->
   </body>
