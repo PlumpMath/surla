@@ -36,8 +36,9 @@
               else if (typeof message.uri === 'string' 
                   && typeof message.contentType === 'string'
                   && message.contentType.match(/^image/)) {
-                  $('#qr').append('<a href="' + message.uri + '" target=_blank>'
-                      + '<img src="' + message.uri + '" width=350 height=350 /></a>');
+                  $('#actionCall').text('Picture uploaded. Processing...');
+                  $('#qr').append('<img src="' + message.uri + '" style="width: 350px; height:350px" />');
+                  window.external.PictureUploaded(message.uri);
               }
               else {
                   $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
@@ -47,7 +48,7 @@
         }
 
         function onDone() {
-          $('#actionCall').text('Thank you for uploading your pictures.')
+          $('#actionCall').text('Thank you for uploading your pictures.');
         }
       });
     </script>
