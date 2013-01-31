@@ -79,7 +79,12 @@
 
           $('#messageContainer').html(content);
 
-          window.external.UploadError(context.relayParams.id || 'undefined');
+          if (context.relayParams && context.relayParams.id) {
+            window.external.UploadError(context.relayParams.id);
+          }
+          else {
+            window.external.UploadError('undefined');
+          }
         }
 
       });
@@ -135,7 +140,8 @@
                 <hr>
                 &copy; 2013 by <a href="http://tomasz.janczuk.org" target=_blank>Tomasz Janczuk</a> | 
                 Powered by <a href="http://surla.mobi" target=_blank>surla.mobi</a> | 
-                Visit the project on <a href="https://github.com/tjanczuk/SurlaLive/issues" target=_blank>GitHub</a>
+                <a href="http://tomasz.janczuk.org/2013/01/paste-photos-from-your-phone-directly.html" target=_blank>About</a> | 
+                <a href="https://github.com/tjanczuk/SurlaLive/issues" target=_blank>Feedback</a>
             </div>
         </div>
       </footer>       
