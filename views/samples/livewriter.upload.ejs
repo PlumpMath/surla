@@ -10,7 +10,12 @@
           height: auto !important;
           height: 350px;
         }        
-        img { -ms-interpolation-mode: bicubic; }
+        img { 
+          max-width: 350px;
+          max-height: 350px;
+          height: auto;
+          width: auto;
+        }
     </style>
 
     <script type="text/javascript">
@@ -37,7 +42,7 @@
                   && typeof message.contentType === 'string'
                   && message.contentType.match(/^image/)) {
                   $('#actionCall').text('Picture uploaded. Processing...');
-                  $('#qr').append('<img src="' + message.uri + '" style="width: 350px; height:350px" />');
+                  $('#qr').append('<img src="' + message.uri + '"/>');
                   window.external.PictureUploaded(message.uri);
               }
               else {
