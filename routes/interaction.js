@@ -32,6 +32,10 @@ exports.get._Chat = function (entry, req, res) {
 };
 
 exports.get._FileUpload = function (entry, req, res) {
+    if (entry.params.interaction.multipleFiles === undefined) {
+        entry.params.interaction.multipleFiles = true;
+    }
+
     db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
         if (error) {
             config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
@@ -200,9 +204,13 @@ exports.post._FileUpload = function (entry, req, res) {
                     if (firstError) {
                         res.send(error.code, error.message || '');
                     }
-                    else {
+                    else if (entry.params.interaction.multipleFiles) {
                         // give the user opportunity to upload more files
                         res.render('interactions/upload', { entry: entry, id: req.params.id });
+                    }
+                    else {
+                        // end of interaction
+                        res.render('interactions/thankyou');
                     }
                 }
             }

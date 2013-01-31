@@ -5,12 +5,19 @@
     <script src="/scripts/surlamobi.js"></script>
     <style>
         .sm-center { text-align: center; }
-        .sm-middle { vertical-align: middle; }
+        .sm-middle { 
+          margin-top:200px; 
+        }
         .sm-qr {
           min-height: 350px;
           height: auto !important;
           height: 350px;
         }        
+        .sm-step {
+          min-height: 400px;
+          height: auto !important;
+          height: 400px;
+        }
         img { 
           max-width: 350px;
           max-height: 350px;
@@ -24,11 +31,12 @@
 
     <script type="text/javascript">
       $(function () {
-        
+
         $('#qr').surlamobi({
           interaction: {
             size: 350,
-            type: 'FileUpload'
+            type: 'FileUpload',
+            multipleFiles: false
           },
           message: onMessage,
           done: onDone
@@ -39,18 +47,17 @@
             var message = data[i];
             if (message) {
               if (message.hello) {
-                $('#actionCall').text('Now choose a picture on your phone...');
-                $('#qr').text('');
+                $('#step1').hide();
+                $('#step2').show();
               }
               else if (typeof message.uri === 'string' 
                   && typeof message.contentType === 'string'
                   && message.contentType.match(/^image/)) {
-                  $('#actionCall').text('Picture uploaded. Processing...');
-                  $('#qr').append('<img src="' + message.uri + '"/>');
-                  window.external.PictureUploaded(message.uri);
+                  $('#message').text('Picture uploaded. Processing...');
+                  window.external.PictureUploaded(message.uri, message.contentType);
               }
               else {
-                  $('#qr').html('<p class="lead">The uploaded file is not an image</p>');
+                  $('#message').text('The uploaded file is not an image.');
               }          
             }
           }
@@ -65,7 +72,7 @@
   </head>
   <body>
     <div class="container">
-      <div class="row">
+      <div class="row sm-step" id="step1">
         <div class="span5 sm-center">
           <p id="actionCall" class="lead">Scan the code to upload a picture<br>from your phone</p>
           <div id="qr" class="sm-qr"></div>
@@ -83,7 +90,7 @@
               <a href="http://windowsphone.uservoice.com/forums/101801-feature-suggestions/suggestions/2343183-upload-files-via-browser" target=_blank>
               vote up this feature request</a> for a missing file upload feature in the mobile Internet Explorer.  
             </ol>
-            <p>After scanning the QR code your phone will open a mobile browser and navigate to a http://surla.mobi website 
+            <p>After scanning the QR code your phone will open a mobile browser and navigate to the http://surla.mobi website 
             for the final picture selection and upload step.</p>
             <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://tomasz.janczuk.org" data-via="tjanczuk" 
                data-size="small" data-text="Insert pictures from your smartphone into the Windows Live Writer" data-hashtags="surlamobi">Tweet</a> 
@@ -100,10 +107,15 @@
             </script>
         </div>
       </div>   
+      <div class="row sm-step" id="step2" style="display: none">
+        <div class="span9 sm-center sm-middle">
+          <p class="lead" id="message">Now choose a picture on your phone...</p>
+        </div>
+      </div>
 
       <footer>
         <div class="row">
-            <div class="span9 sm-center sm-middle">
+            <div class="span9 sm-center">
                 <hr>
                 &copy; 2013 by <a href="http://tomasz.janczuk.org" target=_blank>Tomasz Janczuk</a> | 
                 Powered by <a href="http://surla.mobi" target=_blank>surla.mobi</a> | 
