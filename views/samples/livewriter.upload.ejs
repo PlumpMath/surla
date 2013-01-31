@@ -6,7 +6,7 @@
     <style>
         .sm-center { text-align: center; }
         .sm-middle { 
-          margin-top:200px; 
+          margin-top:220px; 
         }
         .sm-qr {
           min-height: 350px;
@@ -14,9 +14,9 @@
           height: 350px;
         }        
         .sm-step {
-          min-height: 400px;
+          min-height: 440px;
           height: auto !important;
-          height: 400px;
+          height: 440px;
         }
         img { 
           max-width: 350px;
@@ -76,7 +76,7 @@
 
           $('#messageContainer').html(content);
 
-          window.external.UploadError(context.relayParams.id);
+          window.external.UploadError(context.relayParams.id || 'undefined');
         }
 
       });
