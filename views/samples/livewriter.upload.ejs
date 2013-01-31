@@ -39,7 +39,7 @@
             multipleFiles: false
           },
           message: onMessage,
-          done: onDone
+          error: onError
         });
 
         function onMessage(data, context) {
@@ -63,9 +63,22 @@
           }
         }
 
-        function onDone() {
-          $('#actionCall').text('Thank you for uploading your pictures.');
+        function onError(context) {
+          var content = '<p class="lead">Houston, we have a problem.</p>';
+          if (context.params && context.relayParams.id) {
+            content += '<p class="small">Please report it <a href="https://github.com/tjanczuk/SurlaLive/issues" target=_blank>here</a> '
+              + 'and reference ' + context.relayParams.id + '</p>'
+          }
+          else {
+            content += '<p class="small">Try again. If the problem persists, please report it '
+            + '<a href="https://github.com/tjanczuk/SurlaLive/issues" target=_blank>here</a>.';
+          }
+
+          $('#messageContainer').html(content);
+
+          window.external.UploadError(context.relayParams.id);
         }
+
       });
     </script>
 
@@ -92,11 +105,11 @@
             </ol>
             <p>After scanning the QR code your phone will open a mobile browser and navigate to the http://surla.mobi website 
             for the final picture selection and upload step.</p>
-            <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://tomasz.janczuk.org" data-via="tjanczuk" 
+            <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://tomasz.janczuk.org/2013/01/paste-photos-from-your-phone-directly.html" data-via="tjanczuk" 
                data-size="small" data-text="Insert pictures from your smartphone into the Windows Live Writer" data-hashtags="surlamobi">Tweet</a> 
             <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
             <!-- Place this tag where you want the +1 button to render. -->
-            <span class="g-plusone" data-size="medium" data-href="http://tomasz.janczuk.org"></span>
+            <span class="g-plusone" data-size="medium" data-href="http://tomasz.janczuk.org/2013/01/paste-photos-from-your-phone-directly.html"></span>
             <!-- Place this tag after the last +1 button tag. -->
             <script type="text/javascript">
               (function() {
@@ -108,7 +121,7 @@
         </div>
       </div>   
       <div class="row sm-step" id="step2" style="display: none">
-        <div class="span9 sm-center sm-middle">
+        <div class="span9 sm-center sm-middle" id="messageContainer">
           <p class="lead" id="message">Now choose a picture on your phone...</p>
         </div>
       </div>
