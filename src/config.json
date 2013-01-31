@@ -31,6 +31,9 @@
     "accounts": {   
         "surlamobi": {
             "keys": [ "free" ]
+        },
+        "windowslivewriter": {
+            "keys": [ "free" ]
         }
     }
 }
