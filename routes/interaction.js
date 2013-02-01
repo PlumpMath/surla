@@ -36,7 +36,7 @@ exports.get._FileUpload = function (entry, req, res) {
         entry.params.interaction.multipleFiles = true;
     }
 
-    db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
+    db.post(req.params.id, 'application/json', { 'hello': true }, 0, function (error) {
         if (error) {
             config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
             res.send(500);
@@ -48,7 +48,7 @@ exports.get._FileUpload = function (entry, req, res) {
 };
 
 exports.get._Sniffer = function (entry, req, res) {
-    db.post(req.params.id, 'application/json', [ { headers: req.headers || {} }, null ], function (error) {
+    db.post(req.params.id, 'application/json', [ { headers: req.headers || {} }, null ], 0, function (error) {
         if (error) {
             res.send(error.code, error.message || '');
         }
@@ -79,7 +79,7 @@ exports.get._Login = function (entry, req, res) {
         model.enableFacebook = entry.params.interaction.providers.some(function (item) { return item === 'Facebook'; });
     }
 
-    db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
+    db.post(req.params.id, 'application/json', { 'hello': true }, 0, function (error) {
         if (error) {
             config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
             res.send(500);
@@ -102,7 +102,7 @@ exports.get._Payment = function (entry, req, res) {
         orderof: entry.params.interaction.orderof
     };
 
-    db.post(req.params.id, 'application/json', { 'hello': true }, function (error) {
+    db.post(req.params.id, 'application/json', { 'hello': true }, 0, function (error) {
         if (error) {
             config.logger.error('Unable to post hello message', { type: entry.params.interaction.type, id: req.params.id, error: error });
             res.send(500);
@@ -189,48 +189,49 @@ exports.post._FileUpload = function (entry, req, res) {
     }
     else {
         config.logger.verbose('Received postback from FileUpload view', 
-            { id: req.params.id, size: req.files.upfile.size, type: req.files.upfile.type, name: req.files.upfile.name });
+            { id: req.params.id, number: req.files.length, size0: req.files.upfile[0].size, 
+                type0: req.files.upfile[0].type, name0: req.files.upfile[0].name });
 
-        if (req.files.upfile.size === 0) {
-            res.render('interactions/upload', { entry: entry, id: req.params.id });
-        }
-        else {
-            var count = 0;
-            var firstError;
+        var count = 0;
+        var firstError;
 
-            function tryFinish(error) {
-                firstError = firstError || error;
-                if (++count === req.files.upfile.length) {
-                    if (firstError) {
-                        res.send(error.code, error.message || '');
-                    }
-                    else if (entry.params.interaction.multipleFiles) {
-                        // give the user opportunity to upload more files
-                        res.render('interactions/upload', { entry: entry, id: req.params.id });
-                    }
-                    else {
-                        // end of interaction
-                        res.render('interactions/thankyou');
-                    }
+        function tryFinish(error) {
+            firstError = firstError || error;
+            if (++count === req.files.upfile.length) {
+                if (firstError) {
+                    res.send(error.code, error.message || '');
+                }
+                else if (entry.params.interaction.multipleFiles) {
+                    // give the user opportunity to upload more files
+                    res.render('interactions/upload', { entry: entry, id: req.params.id });
+                }
+                else {
+                    // end of interaction
+                    res.render('interactions/thankyou');
                 }
             }
+        }
 
-            req.files.upfile.forEach(function (file) {
+        req.files.upfile.forEach(function (file) {
+            if (config.useAzureBlobStorage) {
+                db.post(req.params.id, file.type, fs.createReadStream(file.path), file.size, tryFinish);
+            }
+            else {
                 fs.readFile(file.path, function (error, data) {
                     if (error) {
                         config.logger.error('Error reading uploaded file', { id: req.params.id, path: file.path });
                         tryFinish({ code: 500, message: 'Error processing uploaded file'});
                     }
                     else {
-                        db.post(req.params.id, file.type, data, tryFinish);
+                        db.post(req.params.id, file.type, data, data.length, tryFinish);
                     }
                 });
-            });
-        }        
+            }
+        });
     }
 
     function finishSendingFiles() {
-        db.post(req.params.id, 'application/json', null, function (error) {
+        db.post(req.params.id, 'application/json', null, 0, function (error) {
             if (error) {
                 res.send(error.code, error.message || '');
             }

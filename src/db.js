@@ -1,12 +1,41 @@
 var uuid = require('node-uuid')
-    , config = require('./config.js');
+    , config = require('./config.js')
+    , azure = require('azure');
 
 var entries = {};
+var blobService = azure.createBlobService();
 
 if (config.seedRelayEntries) {
     config.seedRelayEntries.forEach(function (entry) {
         entries[entry.id] = entry;
         entries[entry.id].created = new Date().toString();
+    });
+}
+
+if (config.useAzureBlobStorage) {
+    // clean up expired azure blobs
+    blobService.listBlobs(config.azureBlobContainerName, function (error, blobs) {
+        if (error) {
+            config.logger.error('Unable to list Azure Blobs', { error: error });
+        }
+        else {
+            var now = new Date();
+            blobs.forEach(function (blob) {
+                var lastModified = new Date(blob.properties['Last-Modified']);
+                if ((now - lastModified) > config.azureBlobTTL) {
+                    blobService.deleteBlob(config.azureBlobContainerName, blob.name, function (error) {
+                        if (error) {
+                            config.logger.error('Unable to delete expired Azure Blob', 
+                                { name: blob.name, lastModified: blob.properties['Last-Modified'], error: error })
+                        }
+                        else {
+                            config.logger.verbose('Deleted expired Azure Blob', 
+                                { name: blob.name, lastModified: blob.properties['Last-Modified'] })
+                        }
+                    });
+                }
+            })
+        }
     });
 }
 
@@ -31,6 +60,20 @@ function setInactivityTimeout(entry) {
                 clearTimeout(pendingRequest.timeout);
                 pendingRequest.callback({ code: 410 })
             }
+        }
+
+        if (entry.azureBlobs) {
+            // remove any attachments associated with this relay entry
+            entry.azureBlobs.forEach(function (blobName) {
+                azure.deleteBlob(config.azureBlobContainerName, blobName, function (error) {
+                    if (error) {
+                        config.logger.error('Error deleting Azure Blob', { name: blobName, error: error });
+                    }
+                    else {
+                        config.logger.silly('Deleted Azure Blob', { name: blobName });
+                    }
+                });
+            });
         }
 
         delete entries[entry.id];
@@ -173,7 +216,7 @@ exports.getAttachment = function (id, position, callback) {
     }
 };
 
-exports.post = function (id, contentType, body, callback) {
+exports.post = function (id, contentType, body, length, callback) {
     var entry = entries[id];
 
     if (!entry) {
@@ -190,8 +233,7 @@ exports.post = function (id, contentType, body, callback) {
         // add message to queue 
         var from = entry.queue.length;
 
-        if (body === null || contentType.match(/^application\/json/) 
-            || (typeof body === 'object' && !Buffer.isBuffer(body))) {
+        if (body === null || contentType.match(/^application\/json/) || Array.isArray(body)) {
             // add JSON content directly to the queue
             if (Buffer.isBuffer(body)) {
                 body = body.toString('utf8');
@@ -206,19 +248,56 @@ exports.post = function (id, contentType, body, callback) {
             else {
                 entry.queue.push(body);
             }
-        }
-        else if (entry.params.useDataUri) {
-            // add non-JSON content to the queue as data URI
-            // http://en.wikipedia.org/wiki/Data_URI_scheme
 
-            if (Buffer.isBuffer(body)) {
-                var uri = 'data:' + contentType + ';base64,' + body.toString('base64');
-                config.logger.silly('Posting ' + contentType + ' message as data URI', { id: id, length: body.length });
-                entry.queue.push({ uri: uri });
-            }
-            else {
-                return callback({ code: 400, message: 'Unsupported type of content'});
-            }
+            finishPost();
+        }
+        // else if (entry.params.useDataUri) {
+        //     // add non-JSON content to the queue as data URI
+        //     // http://en.wikipedia.org/wiki/Data_URI_scheme
+
+        //     if (Buffer.isBuffer(body)) {
+        //         var uri = 'data:' + contentType + ';base64,' + body.toString('base64');
+        //         config.logger.silly('Posting ' + contentType + ' message as data URI', { id: id, length: body.length });
+        //         entry.queue.push({ uri: uri });
+        //     }
+        //     else {
+        //         return callback({ code: 400, message: 'Unsupported type of content'});
+        //     }
+        // }
+        else if (config.useAzureBlobStorage) {
+            var blobName = id + '/' + uuid.v4().replace(/-/g, '');
+            blobService.createBlockBlobFromStream(
+                config.azureBlobContainerName, 
+                blobName, 
+                body, 
+                length,
+                {
+                    contentType: contentType
+                },
+                function (error, blob, response) {
+                    console.log(blob);
+                    if (error) {
+                        config.logger.error('Error uploading to Azure Blob Storage', 
+                            { id: id, contentType: contentType, length: length, error: error });
+                        return callback({ code: 500, message: 'Failure posting content to Azure Blob Storage' });
+                    }
+
+                    var message = { 
+                        contentType: contentType,
+                        uri: 'http://' + process.env.AZURE_STORAGE_ACCOUNT + '.blob.core.windows.net/' 
+                            + config.azureBlobContainerName + '/' + blobName
+                    };
+
+                    entry.queue.push(message);
+
+                    entry.azureBlobs = entry.azureBlobs || [];
+                    entry.azureBlobs.push(blobName);
+
+                    config.logger.silly('Uploaded blob to Azure Blob Storage', 
+                        { id: id, contentType: contentType, length: length, uri: message.uri });
+
+                    finishPost();
+                });
         }
         else {
             // add non-JSON content to the queue as an attachment; include pollKey in the URL
@@ -241,27 +320,31 @@ exports.post = function (id, contentType, body, callback) {
 
             config.logger.silly('Posting ' + contentType + ' message as attachment', 
                 { id: id, contentType: contentType, length: body.length, uri: message.uri });
+
+            finishPost();
         }
 
-        // reset inactivity timeout
-        setInactivityTimeout(entry);
+        function finishPost() {
+            // reset inactivity timeout
+            setInactivityTimeout(entry);
 
-        config.logger.verbose('Posted relay message', 
-            { id: id, queueLength: entry.queue.length, queueClosed: isQueueClosed(entry) });
+            config.logger.verbose('Posted relay message', 
+                { id: id, queueLength: entry.queue.length, queueClosed: isQueueClosed(entry) });
 
-        if (entry.pendingRequests) {
-            // release pending requests
-            var pendingRequests = entry.pendingRequests;
-            delete entry.pendingRequests;
-            var response = entry.queue.slice(from);
-            for (var i in pendingRequests) {
-                var pendingRequest = pendingRequests[i];
-                clearTimeout(pendingRequest.timeout);
-                pendingRequest.callback(null, response);
+            if (entry.pendingRequests) {
+                // release pending requests
+                var pendingRequests = entry.pendingRequests;
+                delete entry.pendingRequests;
+                var response = entry.queue.slice(from);
+                for (var i in pendingRequests) {
+                    var pendingRequest = pendingRequests[i];
+                    clearTimeout(pendingRequest.timeout);
+                    pendingRequest.callback(null, response);
+                }
             }
-        }
 
-        callback();
+            callback();
+        }
     }
 };
 

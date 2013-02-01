@@ -13,6 +13,9 @@
     "loggingLevelConsole": "silly",
     "relayPollTimeout": 30000,
     "inactiveRelayEntryTTL": 600000,
+    "useAzureBlobStorage": true,
+    "azureBlobContainerName": "surlamobi",
+    "azureBlobTTL": 3600000,
 
     "seedRelayEntries": [
         {

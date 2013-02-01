@@ -14,21 +14,27 @@ if (!Buffer.concat) {
   }
 }
 
-exports.bodyBuffer = function () {
+exports.bodyBuffer = function (bufferContent) {
   return function(req, res, next) {
     if (req._body) {
       // body was parsed by prior middleware
       return next();
     }
-
-    req._body = true;
-    var body = [];
-    req.on('data', function (data) {
-      body.push(data);
-    });
-    req.on('end', function () {
-      req.body = body.length == 0 ? null : Buffer.concat(body);
+    else if (bufferContent) {
+      req._body = true;
+      var body = [];
+      req.on('data', function (data) {
+        body.push(data);
+      });
+      req.on('end', function () {
+        req.body = body.length == 0 ? null : Buffer.concat(body);
+        next();
+      });
+    }
+    else {
+      req._body = true;
+      req.body = req;
       next();
-    });
+    }
   }
 };

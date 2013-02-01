@@ -90,7 +90,7 @@ exports.getFacebook = function (req, res) {
 };
 
 function finish(req, res, view, message) {
-    db.post(req.query.surla_id, 'application/json', [ message, null ], function (error) {
+    db.post(req.query.surla_id, 'application/json', [ message, null ], 0, function (error) {
         if (error) {
             config.logger.error('Unable to post ' + message.provider + ' login result to relay', 
                 { id: req.query.surla_id, error: error });

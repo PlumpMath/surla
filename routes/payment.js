@@ -4,7 +4,7 @@ var db = require('../src/db.js')
     , crypto = require('crypto');
 
 exports.finish = function (id, res, view, message) {
-    db.post(id, 'application/json', [ message, null ], function (error) {
+    db.post(id, 'application/json', [ message, null ], 0, function (error) {
         if (error) {
             config.logger.error('Unable to post payment completion to relay', { id: id, error: error });
             res.render('interactions/paymentfailed');

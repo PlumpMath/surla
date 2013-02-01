@@ -94,8 +94,22 @@ exports.getAttachment = function(req, res) {
 };
 
 exports.post = function (req, res) {
+    var length = req.get('Content-Length');
+    if (isNaN(length)) {
+        if (Buffer.isBuffer(req.body)) {
+            length = req.body.length;
+        }
+        else if (req.get('Content-Type').match(/^application\/json/)) {
+            length = -1;
+        }
+        else {
+            config.logger.warning('Post with content type ' + req.get('Content-Type') + ' has no Content-Length specified');
+            return res.send(400, 'Content-Type must be application/json or Content-Length must be specified.')
+        }
+    }
+
     var body = req.get('Content-Length') == 0 ? null : req.body;
-    db.post(req.params.id, req.get('Content-Type'), body, function (error) {
+    db.post(req.params.id, req.get('Content-Type'), body, length, function (error) {
         try {
             if (error) {
                 error.id = req.params.id;
